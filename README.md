@@ -84,7 +84,7 @@ Um **Portal de Estágios** interativo com arquitetura distribuída, composto por
 ### 1. Clone o repositório
 
 ```bash
-git clone https://github.com/SEU_USUARIO/portal-estagios-unialfa.git
+git clone https://github.com/leonardoishida34/portal-estagios-unialfa.git
 cd portal-estagios-unialfa
 ```
 
@@ -150,7 +150,8 @@ portal-estagios-unialfa/
 | [Nome 1] | [RA] | Java – Back Office Institucional |
 | [Nome 2] | [RA] | Node.js – API RESTful |
 | [Nome 3] | [RA] | PHP – Front-end Web |
-| [Nome 4] | [RA] | DevOps, Git, Documentação e UX |
+| [Nome 4] | [RA] | DevOps, Git e Documentação |
+| [Nome 4] | [RA] | UX, Figma e protótipos |
 
 ---
 
