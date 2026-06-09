@@ -1,0 +1,17 @@
+# Java
+*.class
+*.jar
+target/
+
+# Node.js
+node_modules/
+.env
+dist/
+
+# PHP
+vendor/
+.env
+
+# Sistema
+.DS_Store
+Thumbs.db
