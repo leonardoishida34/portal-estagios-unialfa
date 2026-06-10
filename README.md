@@ -150,8 +150,8 @@ portal-estagios-unialfa/
 | [Nome 1] | [RA] | Java – Back Office Institucional |
 | [Nome 2] | [RA] | Node.js – API RESTful |
 | [Nome 3] | [RA] | PHP – Front-end Web |
-| [Nome 4] | [RA] | DevOps, Git e Documentação |
-| [Nome 4] | [RA] | UX, Figma e protótipos |
+| [Leonardo Hitoshi Ishida] | [250282] | DevOps, Git e Documentação |
+| [Nome 5] | [RA] | UX, Figma e protótipos |
 
 ---
 
