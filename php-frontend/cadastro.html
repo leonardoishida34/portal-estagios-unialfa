@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Currículo - Banco de Talentos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- 
+      [SUGESTÃO DE COMMIT]
+      git commit -m "refactor: atualizar links da navbar na pagina home"
+    -->
+    <nav class="navbar">
+        <div class="logo">UniAlfa</div>
+        <div class="nav-links">
+            <a href="index.html" style="color: var(--primary-blue); font-weight: 700;">Início</a>
+            <a href="vagas.html">Vagas</a>
+            <a href="empresas.html">Empresas</a>
+        </div>
+    </nav>
+
+    <section class="hero-section">
+        <div class="bg-shape bg-purple"></div>
+        <div class="bg-shape bg-green"></div>
+
+        <div class="container">
+            
+            <div class="hero-content">
+                <span class="badge">Oportunidades de Carreira</span>
+                <h1 class="hero-title">Cadastre seu Currículo</h1>
+                <p class="hero-subtitle">Faça parte do nosso banco de talentos e seja encontrado pelas maiores empresas de tecnologia.</p>
+
+                <form class="hero-form" action="#" method="POST" enctype="multipart/form-data">
+                    
+                    <fieldset style="border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; background-color: #ffffff;">
+                        <legend style="font-weight: 600; color: var(--primary-blue); padding: 0 10px; font-size: 0.95rem;">Dados Pessoais</legend>
+                        
+                        <div class="form-group">
+                            <label for="nome">Nome Completo *</label>
+                            <input type="text" id="nome" name="nome" required placeholder="Ex: Nome">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">E-mail Corporativo ou Pessoal *</label>
+                            <input type="email" id="email" name="email" required placeholder="exemplo@email.com">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="telefone">Telefone / WhatsApp *</label>
+                            <input type="tel" id="telefone" name="telefone" required placeholder="(11) 99999-9999">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="data-nascimento">Data de Nascimento</label>
+                            <input type="date" id="data-nascimento" name="data-nascimento">
+                        </div>
+                    </fieldset>
+
+                    <fieldset style="border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; background-color: #ffffff;">
+                        <legend style="font-weight: 600; color: var(--primary-blue); padding: 0 10px; font-size: 0.95rem;">Formação e Nível Profissional</legend>
+
+                        <div class="form-group">
+                            <label for="escolaridade">Escolaridade Atual *</label>
+                            <select id="escolaridade" name="escolaridade" required style="width: 100%; padding: 1rem; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1rem; margin-bottom: 1rem; background-color: #fff; font-family: inherit;">
+                                <option value="">Selecione sua escolaridade...</option>
+                                <option value="medio">Ensino Médio</option>
+                                <option value="tecnico">Ensino Técnico</option>
+                                <option value="superior-incompleto">Superior Incompleto</option>
+                                <option value="superior-completo">Superior Completo</option>
+                                <option value="pos">Pós-graduação / MBA / Mestrado</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="nivel">Nível Profissional Pretendido *</label>
+                            <select id="nivel" name="nivel" required style="width: 100%; padding: 1rem; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1rem; margin-bottom: 1rem; background-color: #fff; font-family: inherit;">
+                                <option value="">Selecione o nível corporativo...</option>
+                                <option value="estagio">Estágio</option>
+                                <option value="junior">Júnior / Trainee</option>
+                                <option value="pleno">Pleno</option>
+                                <option value="senior">Sênior</option>
+                            </select>
+                        </div>
+                    </fieldset>
+
+                    <fieldset style="border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; background-color: #ffffff;">
+                        <legend style="font-weight: 600; color: var(--primary-blue); padding: 0 10px; font-size: 0.95rem;">Experiência e Hard Skills</legend>
+
+                        <div class="form-group">
+                            <label for="experiencia">Resumo de Experiências Anteriores</label>
+                            <textarea id="experiencia" name="experiencia" placeholder="Descreva sucintamente ferramentas, atribuições e projetos que participou..." style="width: 100%; padding: 1rem; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1rem; margin-bottom: 1rem; font-family: inherit; resize: vertical; height: 110px;"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="habilidades">Tecnologias e Stacks (separadas por vírgula)</label>
+                            <input type="text" id="habilidades" name="habilidades" placeholder="Ex: HTML, CSS, JavaScript, Git, PHP, Node.js">
+                        </div>
+                    </fieldset>
+
+                    <fieldset style="border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; background-color: #ffffff;">
+                        <legend style="font-weight: 600; color: var(--primary-blue); padding: 0 10px; font-size: 0.95rem;">Documentação</legend>
+                        <div class="form-group">
+                            <label for="curriculo-file">Anexe seu currículo atualizado (Formatos: PDF, DOCX) *</label>
+                            <input type="file" id="curriculo-file" name="curriculo-file" accept=".pdf,.doc,.docx" required style="padding: 0.75rem 1rem;">
+                        </div>
+                    </fieldset>
+
+                    <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1rem;">
+                        Enviar Currículo
+                    </button>
+                </form>
+            </div>
+
+            <div class="hero-image-wrapper">
+                <div class="main-image-placeholder">Área de Destaque</div>
+
+                <div class="floating-card card-top-left">
+                    <div class="blue-header">
+                        <span class="tag">Análise</span>
+                        <p style="margin: 0; font-weight: 500;">Triagem do Currículo</p>
+                        <div class="progress-bar"><div class="progress" style="width: 70%;"></div></div>
+                    </div>
+                </div>
+
+                <div class="floating-card card-top-right">
+                    <p class="card-title">Match de Vaga</p>
+                    <div class="feedback-stats">
+                        <span style="color: var(--text-gray);">Compatibilidade</span>
+                        <span style="color: var(--primary-blue); font-weight: bold;">94%</span>
+                    </div>
+                </div>
+
+                <div class="floating-card card-bottom">
+                    <div class="card-body">
+                        <div class="doc-placeholder">meu_curriculo.pdf</div>
+                        <span class="tag-success">✓ Validado com Sucesso</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+</body>
+</html>
