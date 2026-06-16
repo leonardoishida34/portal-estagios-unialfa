@@ -26,7 +26,7 @@ outro colega revisa antes de aprovar.
 ----------------------------------------------------------------
 
 1. Clone o repositório:
-   git clone https://github.com/leonardoishida34/portal-estagios-unialfa.git
+   git clone https://github.com/SEU_USUARIO/portal-estagios-unialfa.git
    cd portal-estagios-unialfa
 
 2. Entre na SUA branch (exemplo para Node.js):
