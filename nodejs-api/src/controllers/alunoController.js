@@ -16,7 +16,6 @@ async function listar(req, res, next) {
       include: { _count: { select: { candidaturas: true } } },
       orderBy: { nome: 'asc' }
     })
-
     res.json(alunos)
   } catch (err) {
     next(err)
@@ -29,11 +28,10 @@ async function buscarPorId(req, res, next) {
       where: { id: Number(req.params.id) },
       include: {
         candidaturas: {
-          include: { vaga: { select: { titulo: true, empresa: true, area: true, status: true } } }
+          include: { vaga: { select: { titulo: true, area: true, status: true, empresa: { select: { nome: true } } } } }
         }
       }
     })
-
     res.json(aluno)
   } catch (err) {
     next(err)

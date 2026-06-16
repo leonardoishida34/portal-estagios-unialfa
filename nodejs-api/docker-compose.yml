@@ -1,0 +1,20 @@
+version: '3.9'
+
+services:
+
+  # ── API Node.js ────────────────────────────────────────────────
+  api:
+    build: .
+    container_name: portal_estagios_api
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./src:/app/src
+      - db_data:/app/prisma
+    environment:
+      DATABASE_URL: file:/app/prisma/dev.db
+      PORT: 3000
+    restart: unless-stopped
+
+volumes:
+  db_data:
