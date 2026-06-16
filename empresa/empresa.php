@@ -9,7 +9,7 @@ include BASE_PATH . '/includes/header.php';
 // Verifica se tem alguém logado E se é empresa
 // Se não, redireciona para o login
 if (!isset($_SESSION['usuario']) || $_SESSION['usuario']['tipo'] !== 'empresa') {
-    header('Location: ' . BASE_URL . '/login.php?erro=acesso-restrito');
+    header('Location: ' . BASE_URL . '/portal-estagios-unialfa/login.php?erro=acesso-restrito');
     exit;
     }
 

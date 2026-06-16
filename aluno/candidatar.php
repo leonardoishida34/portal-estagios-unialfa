@@ -1,20 +1,52 @@
 <?php
+// ============================================
+// aluno/candidatar.php
+// Formulário de candidatura a uma vaga.
+// Consome a API via CandidaturaController.
+// ============================================
+
+require_once __DIR__ . '/../config.php';
+require_once BASE_PATH . '/src/Controllers/CandidaturaController.php';
+require_once BASE_PATH . '/src/Controllers/VagaController.php';
+
+// ── Protege a rota ──
+// Só aluno logado acessa
+session_start();
+if (!isset($_SESSION['usuario']) || $_SESSION['usuario']['perfil'] !== 'aluno') {
+    header('Location: ' . BASE_URL . '/login.php');
+    exit;
+}
+
+$vagaId  = (int)($_GET['vaga_id'] ?? 0);
+$sucesso = false;
+$erro    = '';
+
+// ── Busca a vaga real da API ──
+// Em vez do mock, usa o VagaController
+$vagaController = new VagaController();
+$vaga = $vagaController->buscar($vagaId);
+
+// Se vaga não existe, volta para lista
+if (!$vaga) {
+    header('Location: ' . BASE_URL . '/aluno/vagas.php');
+    exit;
+}
+
+// ── Processa a candidatura ──
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $controller = new CandidaturaController();
+    $resultado  = $controller->candidatar();
+
+    if (isset($resultado['erro'])) {
+        $erro = $resultado['erro'];
+    } else {
+        $sucesso = true;
+    }
+}
+
 $tituloPagina = 'Candidatura — Portal UniALFA';
 $paginaAtiva  = 'vagas';
-$raiz         = '../';
-require_once __DIR__ . '/../config.php';
 include BASE_PATH . '/includes/header.php';
-
-$vagaId = (int)($_GET['vaga_id'] ?? 1);
-
-// Mock da vaga — depois vem da API
-$vagas = [
-  1 => ['titulo'=>'Desenvolvedor(a) Web', 'empresa'=>'TechSul Sistemas', 'area'=>'Tecnologia', 'tipo'=>'Presencial', 'carga'=>'30h/sem', 'descricao'=>'Vaga voltada para alunos de TI. Conhecimentos em HTML, CSS e lógica de programação são diferenciais.', 'requisitos'=>'Cursando Tecnologia em Sistemas para Internet ou similar. Disponibilidade para trabalho presencial.'],
-  2 => ['titulo'=>'Assistente Administrativo', 'empresa'=>'Grupo RB Comércio', 'area'=>'Administração', 'tipo'=>'Híbrido', 'carga'=>'20h/sem', 'descricao'=>'Apoio nas rotinas administrativas.', 'requisitos'=>'Cursando Administração.'],
-];
-
-$vaga = $vagas[$vagaId] ?? $vagas[1];
-$sucesso = isset($_GET['sucesso']);
 ?>
 
 <style>
@@ -33,7 +65,6 @@ $sucesso = isset($_GET['sucesso']);
 
   .breadcrumb a { color: var(--muted); transition: color 0.15s; }
   .breadcrumb a:hover { color: var(--texto); }
-  .breadcrumb svg { width: 14px; height: 14px; }
 
   /* Steps */
   .steps-bar {
@@ -43,7 +74,6 @@ $sucesso = isset($_GET['sucesso']);
     padding: 1.5rem 0;
     max-width: 380px;
     margin: 0 auto;
-    gap: 0;
   }
 
   .step-item {
@@ -86,7 +116,7 @@ $sucesso = isset($_GET['sucesso']);
   .step-item.done .step-circulo  { background: var(--azul); border-color: var(--azul); color: #fff; }
   .step-item.ativo .step-circulo { border-color: var(--azul); color: var(--azul); }
   .step-label { font-size: 11px; color: var(--muted); white-space: nowrap; }
-  .step-item.ativo .step-label   { color: var(--azul); font-weight: 600; }
+  .step-item.ativo .step-label { color: var(--azul); font-weight: 600; }
 
   /* Layout */
   .cand-layout {
@@ -113,13 +143,17 @@ $sucesso = isset($_GET['sucesso']);
   }
 
   .vaga-sticky { position: sticky; top: 90px; }
+  .vaga-nome   { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+  .vaga-emp    { font-size: 13px; color: var(--muted); margin-bottom: 12px; }
+  .vaga-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
 
-  .vaga-nome    { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
-  .vaga-emp     { font-size: 13px; color: var(--muted); margin-bottom: 12px; }
-  .vaga-badges  { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
-  .vaga-desc-txt { font-size: 13px; color: var(--muted); line-height: 1.65; border-top: 1px solid var(--borda); padding-top: 12px; }
-  .vaga-req     { margin-top: 10px; font-size: 13px; color: var(--muted); line-height: 1.65; }
-  .vaga-req strong { color: var(--texto); display: block; margin-bottom: 4px; }
+  .vaga-desc-txt {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.65;
+    border-top: 1px solid var(--borda);
+    padding-top: 12px;
+  }
 
   .info-box {
     display: flex;
@@ -133,27 +167,21 @@ $sucesso = isset($_GET['sucesso']);
     line-height: 1.55;
   }
 
-.upload-area {
-    border: 1.5px dashed var(--borda);
-    border-radius: var(--radius);
-    padding: 1.25rem;
-    text-align: center;
-    cursor: pointer;
-    transition: background 0.15s, border-color 0.15s;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    width: 100%;
+  /* Campo desabilitado */
+  input:disabled {
+    background: var(--fundo);
+    color: var(--muted);
+    cursor: not-allowed;
   }
 
-  .upload-area:hover { background: var(--fundo); border-color: var(--azul); }
-  .upload-area input { display: none; }
-  .upload-area p     { font-size: 13px; color: var(--muted); text-align: center; width: 100%; }
-  .upload-area small { font-size: 11px; color: var(--muted); opacity: 0.7; text-align: center; }
+  .termos {
+    text-align: center;
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 10px;
+    line-height: 1.5;
+  }
 
-  .termos { text-align: center; font-size: 12px; color: var(--muted); margin-top: 10px; line-height: 1.5; }
   .termos a { color: var(--azul); }
 
   /* Sucesso */
@@ -183,26 +211,29 @@ $sucesso = isset($_GET['sucesso']);
 
 <!-- Breadcrumb -->
 <div class="breadcrumb">
-  <a href="vagas.php">← Vagas</a>
+  <a href="<?= BASE_URL ?>/aluno/vagas.php">← Vagas</a>
   <span>/</span>
   <span>Candidatura</span>
 </div>
 
 <?php if ($sucesso): ?>
 
+  <!-- ── Tela de sucesso ── -->
   <div class="sucesso-box">
     <div class="check-circle">✓</div>
     <h2>Candidatura enviada!</h2>
-    <p>Sua candidatura para <strong><?= htmlspecialchars($vaga['titulo']) ?></strong> foi recebida. Você será notificado quando houver uma atualização.</p>
+    <p>
+      Sua candidatura para <strong><?= htmlspecialchars($vaga->getTitulo()) ?></strong>
+      foi recebida. Você será notificado quando houver uma atualização.
+    </p>
     <div class="sucesso-acoes">
-      <a href="candidaturas.php" class="btn btn-primary">Ver minhas candidaturas</a>
-      <a href="vagas.php" class="btn btn-outline">Ver mais vagas</a>
+      <a href="<?= BASE_URL ?>/aluno/vagas.php" class="btn btn-primary">Ver mais vagas</a>
     </div>
   </div>
 
 <?php else: ?>
 
-  <!-- Steps -->
+  <!-- ── Steps ── -->
   <div class="steps-bar">
     <div class="step-item done">
       <div class="step-circulo">✓</div>
@@ -218,76 +249,85 @@ $sucesso = isset($_GET['sucesso']);
     </div>
   </div>
 
+  <!-- ── Erro ── -->
+  <?php if ($erro): ?>
+    <div class="alert alert-error" style="max-width:1000px;margin:0 auto 1rem;padding:0 5%">
+      <?= htmlspecialchars($erro) ?>
+    </div>
+  <?php endif; ?>
+
   <div class="cand-layout">
 
-    <!-- Formulário -->
+    <!-- ── Formulário ── -->
     <div class="col-form">
+
+      <!-- Dados do candidato — pré-preenchidos da sessão -->
       <div class="card" style="margin-bottom:1.25rem">
         <p class="card-titulo">Dados do candidato</p>
-        <div class="form-group">
-          <label>Nome completo</label>
-          <input type="text" placeholder="Seu nome completo" />
-        </div>
-        <div style="display:flex;gap:1rem">
-          <div class="form-group" style="flex:1">
-            <label>RA</label>
-            <input type="text" placeholder="Ex: 258450" />
-          </div>
-          <div class="form-group" style="flex:1">
-            <label>Período</label>
-            <select>
-              <?php for ($i = 1; $i <= 8; $i++): ?>
-                <option><?= $i ?>º período</option>
-              <?php endfor; ?>
-            </select>
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Curso</label>
-          <select>
-            <option>Tecnologia em Sistemas para Internet</option>
-            <option>Administração</option>
-            <option>Ciências Contábeis</option>
-          </select>
-        </div>
-      </div>
 
-      <div class="card">
-        <p class="card-titulo">Carta de apresentação e currículo</p>
-        <div class="form-group">
-          <label>Carta de apresentação *</label>
-          <textarea rows="5" placeholder="Fale sobre seus objetivos, habilidades e por que você tem interesse nesta vaga..."></textarea>
-        </div>
-        <label class="upload-area" for="curriculo">
-          <input type="file" id="curriculo" accept=".pdf,.doc,.docx" onchange="mostrarArquivo(this)" />
-          <div style="font-size:24px">📄</div>
-          <p id="upload-texto">Clique para anexar seu currículo</p>
-          <small>PDF, DOC ou DOCX · Máximo 5 MB</small>
-        </label>
+        <!-- Campo hidden com vaga_id para o controller -->
+        <form method="POST" action="">
+          <input type="hidden" name="vaga_id" value="<?= $vagaId ?>" />
 
-        <button class="btn btn-primary btn-lg btn-block" onclick="enviar()" style="margin-top:1rem">
-          Enviar candidatura
-        </button>
-        <p class="termos">Ao enviar, você concorda com os <a href="#">termos de uso</a> do Portal UniALFA.</p>
+          <div class="form-group">
+            <label>Nome completo</label>
+            <!-- Pré-preenchido da sessão e desabilitado — aluno não edita aqui -->
+            <input type="text"
+                   value="<?= htmlspecialchars($_SESSION['usuario']['nome']) ?>"
+                   disabled />
+          </div>
+
+          <div class="form-group">
+            <label>RA (Registro Acadêmico)</label>
+            <!-- RA da sessão — vai para o controller via $_SESSION -->
+            <input type="text"
+                   value="<?= htmlspecialchars($_SESSION['usuario']['ra']) ?>"
+                   disabled />
+          </div>
+
+          <div class="form-group">
+            <label>Curso</label>
+            <input type="text"
+                   value="<?= htmlspecialchars($_SESSION['usuario']['curso'] ?? '') ?>"
+                   disabled />
+          </div>
+
+          <!-- Botão de envio -->
+          <button type="submit" class="btn btn-primary btn-lg btn-block"
+                  style="margin-top:0.5rem">
+            Confirmar candidatura
+          </button>
+
+        </form>
+
+        <p class="termos">
+          Ao enviar, você concorda com os
+          <a href="#">termos de uso</a> do Portal UniALFA.
+        </p>
       </div>
     </div>
 
-    <!-- Card da vaga -->
+    <!-- ── Card da vaga ── -->
     <div class="col-vaga">
       <div class="card vaga-sticky">
         <p class="card-titulo">Vaga selecionada</p>
-        <p class="vaga-nome"><?= htmlspecialchars($vaga['titulo']) ?></p>
-        <p class="vaga-emp">🏢 <?= htmlspecialchars($vaga['empresa']) ?></p>
+
+        <!-- Usa getters do objeto Vaga — não mais array -->
+        <p class="vaga-nome"><?= htmlspecialchars($vaga->getTitulo()) ?></p>
+        <p class="vaga-emp">🏢 Empresa #<?= $vaga->getEmpresaId() ?></p>
+
         <div class="vaga-badges">
-          <span class="badge badge-blue"><?= htmlspecialchars($vaga['area']) ?></span>
-          <span class="badge badge-gray"><?= htmlspecialchars($vaga['tipo']) ?></span>
-          <span class="badge badge-green"><?= htmlspecialchars($vaga['carga']) ?></span>
+          <!-- bolsa e status são os únicos campos do banco -->
+          <span class="badge badge-green"><?= $vaga->getBolsaFormatada() ?></span>
+          <span class="badge <?= $vaga->getStatusBadge() ?>">
+            <?= $vaga->getStatusLabel() ?>
+          </span>
         </div>
-        <p class="vaga-desc-txt"><?= htmlspecialchars($vaga['descricao']) ?></p>
-        <div class="vaga-req">
-          <strong>Requisitos</strong>
-          <?= htmlspecialchars($vaga['requisitos']) ?>
-        </div>
+
+        <p class="vaga-desc-txt">
+          <?= htmlspecialchars($vaga->getDescricao()) ?>
+        </p>
+
         <div class="info-box">
           ℹ️ <span>Após enviar, a empresa analisará seu perfil e você será notificado pelo portal.</span>
         </div>
@@ -298,19 +338,4 @@ $sucesso = isset($_GET['sucesso']);
 
 <?php endif; ?>
 
-<script>
-function mostrarArquivo(input) {
-  if (input.files.length > 0) {
-    document.getElementById('upload-texto').textContent = '📎 ' + input.files[0].name;
-  }
-}
-
-function enviar() {
-  // Aqui vai o POST para a API futuramente
-  window.location.href = 'candidatar.php?vaga_id=<?= $vagaId ?>&sucesso=1';
-}
-</script>
-
-<?php
-include BASE_PATH . '/includes/footer.php';
-?>
+<?php include BASE_PATH . '/includes/footer.php'; ?>

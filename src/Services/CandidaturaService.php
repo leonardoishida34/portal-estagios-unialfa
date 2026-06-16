@@ -1,17 +1,15 @@
 <?php
-
-// ============================================
-// SERVICE: CandidaturaService
 // Consome a API Node.js — rotas de candidaturas:
 //
-// GET    /candidaturas              → listar todas
-// GET    /candidaturas/:id          → buscar uma
-// POST   /candidaturas              → criar
-// PATCH  /candidaturas/:id/status   → atualizar status
-// DELETE /candidaturas/:id          → remover
+// GET    /candidaturas                  → listar
+// GET    /candidaturas/:id              → buscar
+// POST   /candidaturas                  → criar
+// PATCH  /candidaturas/:id/status       → atualizar status
+// DELETE /candidaturas/:id              → remover
 //
-// ATENÇÃO: atualizar status usa PATCH, não PUT!
-// E a rota é /:id/status, não só /:id
+// Alterações em relação à versão anterior:
+// - candidatar() usa aluno_ra (string) em vez de aluno_id (int)
+// - candidatar() não tem mais o campo 'carta'
 // ============================================
 
 require_once BASE_PATH . '/src/Services/ApiCliente.php';
@@ -25,10 +23,10 @@ class CandidaturaService {
         $this->client = new ApiCliente();
     }
 
-    // GET /candidaturas?aluno_id=X
-    // Retorna candidaturas de um aluno específico
-    public function listarPorAluno(int $alunoId): array {
-        $data = $this->client->get("/candidaturas?aluno_id={$alunoId}");
+    // GET /candidaturas?aluno_ra=X
+    // Retorna candidaturas de um aluno pelo RA (string!)
+    public function listarPorAluno(string $alunoRa): array {
+        $data = $this->client->get("/candidaturas?aluno_ra={$alunoRa}");
 
         if (!is_array($data) || isset($data['erro'])) return [];
 
@@ -55,18 +53,17 @@ class CandidaturaService {
     }
 
     // POST /candidaturas
-    // Envia candidatura do aluno para a vaga
-    public function candidatar(int $alunoId, int $vagaId, string $carta): array {
+    // aluno_ra é string! — chave primária da tabela alunos
+    // sem campo carta — não existe no banco
+    public function candidatar(string $alunoRa, int $vagaId): array {
         return $this->client->post('/candidaturas', [
-            'aluno_id' => $alunoId,
+            'aluno_ra' => $alunoRa, // string, não int!
             'vaga_id'  => $vagaId,
-            'carta'    => $carta,
         ]);
     }
 
     // PATCH /candidaturas/:id/status
-    // ATENÇÃO: usa PATCH e rota especial /status no final
-    // A empresa usa isso para aprovar ou recusar candidatos
+    // status válidos: 'pendente' | 'aprovado' | 'reprovado'
     public function atualizarStatus(int $id, string $status): array {
         return $this->client->patch("/candidaturas/{$id}/status", [
             'status' => $status,

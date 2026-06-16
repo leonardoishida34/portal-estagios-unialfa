@@ -1,11 +1,73 @@
 <?php
+// ============================================
+// login.php
+// Tela de login do portal.
+// Autentica aluno e empresa via API Node.js.
+// ============================================
+
+require_once __DIR__ . '/config.php';
+require_once BASE_PATH . '/src/Controllers/AlunoController.php';
+require_once BASE_PATH . '/src/Controllers/EmpresaController.php';
+
+session_start();
+
+// Se já está logado redireciona para o painel correto
+if (isset($_SESSION['usuario'])) {
+    $perfil = $_SESSION['usuario']['perfil'] ?? 'aluno';
+    header('Location: ' . ($perfil === 'empresa'
+        ? BASE_URL . '/empresa/empresa.php'
+        : BASE_URL . '/aluno/vagas.php'));
+    exit;
+}
+
+$erro = '';
+
+// ── Processa o login ──
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $tipo  = $_POST['tipo']  ?? 'aluno';
+    $login = trim($_POST['login'] ?? '');
+    $senha = trim($_POST['senha'] ?? '');
+
+    if (empty($login) || empty($senha)) {
+        $erro = 'Preencha login e senha para continuar.';
+    } else {
+        if ($tipo === 'empresa') {
+            $controller = new EmpresaController();
+        } else {
+            $controller = new AlunoController();
+        }
+
+        $resultado = $controller->login();
+
+        if (isset($resultado['erro'])) {
+            $erro = $resultado['erro'];
+        } else {
+            // ── Salva na sessão ──
+            // perfil vem da tabela usuarios ('aluno' ou 'empresa')
+            $_SESSION['usuario'] = [
+                'id'     => $resultado['id']     ?? 0,
+                'nome'   => $resultado['nome']   ?? '',
+                'login'  => $resultado['login']  ?? $login,
+                'ra'     => $resultado['ra']     ?? '',   // só aluno tem RA
+                'curso'  => $resultado['curso']  ?? '',   // só aluno tem curso
+                'perfil' => $resultado['perfil'] ?? $tipo,
+            ];
+
+            // Redireciona para o painel correto
+            $destino = ($tipo === 'empresa')
+                ? BASE_URL . '/empresa/empresa.php'
+                : BASE_URL . '/aluno/vagas.php';
+
+            header("Location: $destino");
+            exit;
+        }
+    }
+}
+
 $tituloPagina = 'Login — Portal UniALFA';
 $paginaAtiva  = '';
-$raiz         = '';
- require_once __DIR__ . '/config.php';
 include BASE_PATH . '/includes/header.php';
 ?>
-
 
 <style>
   body { background: var(--fundo); }
@@ -39,7 +101,7 @@ include BASE_PATH . '/includes/header.php';
     color: #fff;
   }
 
-  .lh-logo   { font-size: 20px; font-weight: 800; }
+  .lh-logo { font-size: 20px; font-weight: 800; }
   .lh-logo span { opacity: 0.7; }
 
   .lh-body h2 { font-size: 26px; font-weight: 800; line-height: 1.3; margin-bottom: 10px; }
@@ -87,16 +149,6 @@ include BASE_PATH . '/includes/header.php';
     margin-top: -4px; margin-bottom: 1.25rem;
   }
 
-  .btn-google {
-    width: 100%; display: flex; align-items: center; justify-content: center;
-    gap: 10px; padding: 11px 22px; border: 1px solid var(--borda);
-    border-radius: 50px; font-size: 14px; font-weight: 500;
-    background: var(--branco); color: var(--texto);
-    cursor: pointer; font-family: inherit; transition: background 0.15s;
-  }
-
-  .btn-google:hover { background: var(--fundo); }
-
   .form-rodape { text-align: center; font-size: 13px; color: var(--muted); margin-top: 1.25rem; }
   .form-rodape a { color: var(--azul); font-weight: 500; }
 
@@ -111,6 +163,7 @@ include BASE_PATH . '/includes/header.php';
 <div class="login-wrapper">
   <div class="login-box">
 
+    <!-- Hero -->
     <div class="login-hero">
       <div class="lh-logo">Uni<span>ALFA</span> Estágios</div>
       <div class="lh-body">
@@ -124,34 +177,61 @@ include BASE_PATH . '/includes/header.php';
       </div>
     </div>
 
+    <!-- Formulário -->
     <div class="login-form-area">
       <h1>Entrar na plataforma</h1>
       <p class="login-sub">Acesse sua conta para continuar</p>
 
+      <!-- Abas -->
       <div class="tabs">
-        <button class="tab-btn ativo" onclick="trocarAba(this,'aluno')">Sou Aluno</button>
-        <button class="tab-btn"       onclick="trocarAba(this,'empresa')">Sou Empresa</button>
+        <button type="button" class="tab-btn ativo" onclick="trocarAba(this,'aluno')">Sou Aluno</button>
+        <button type="button" class="tab-btn"       onclick="trocarAba(this,'empresa')">Sou Empresa</button>
       </div>
 
-      <div class="form-group">
-        <label id="label-email">E-mail </label>
-        <input type="email" id="email" placeholder="Digite seu e-mail" autocomplete="email" />
-      </div>
+      <!-- Erro -->
+      <?php if ($erro): ?>
+        <div class="alert alert-error"><?= htmlspecialchars($erro) ?></div>
+      <?php endif; ?>
 
-      <div class="form-group">
-        <label>Senha</label>
-        <input type="password" id="senha" placeholder="••••••••" autocomplete="current-password" />
-      </div>
+      <!-- Form com POST real -->
+      <form method="POST" action="" novalidate>
+        <!-- Campo hidden que muda conforme a aba selecionada -->
+        <input type="hidden" name="tipo" id="input-tipo" value="aluno" />
 
-      <a class="esqueci" href="#">Esqueci minha senha</a>
+        <div class="form-group">
+          <label id="label-login">Login</label>
+          <input type="text"
+                 name="login"
+                 id="login"
+                 placeholder="Digite seu RA"
+                 value="<?= htmlspecialchars($_POST['login'] ?? '') ?>"
+                 autocomplete="username"
+                 required />
+        </div>
 
-      <button class="btn btn-primary btn-lg btn-block" onclick="fazerLogin()">Entrar</button>
+        <div class="form-group">
+          <label>Senha</label>
+          <input type="password"
+                 name="senha"
+                 id="senha"
+                 placeholder="••••••••"
+                 autocomplete="current-password"
+                 required />
+        </div>
 
-      <div class="divider">ou</div>
+        <a class="esqueci" href="#">Esqueci minha senha</a>
 
-      
+        <button type="submit" class="btn btn-primary btn-lg btn-block">
+          Entrar
+        </button>
+      </form>
 
-    <p class="form-rodape">Não tem conta? <a id="link-cadastro" href="<?= BASE_URL ?>/aluno/cadastro.php">Criar conta gratuita</a></p>
+      <p class="form-rodape">
+        Não tem conta?
+        <a id="link-cadastro" href="<?= BASE_URL ?>/aluno/cadastro.php">
+          Criar conta gratuita
+        </a>
+      </p>
     </div>
 
   </div>
@@ -159,37 +239,31 @@ include BASE_PATH . '/includes/header.php';
 
 <script>
 function trocarAba(btn, tipo) {
-  // Remove a classe 'ativo' de todos os botões e adiciona no botão clicado
+  // Troca aba ativa
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('ativo'));
   btn.classList.add('ativo');
-  
-  // Mapeia os elementos que vão mudar
-  const label = document.getElementById('label-email');
-  const input = document.getElementById('email');
-  const linkCadastro = document.getElementById('link-cadastro'); // <-- Pegamos o link aqui
+
+  // Atualiza o campo hidden para o PHP saber qual tipo está logando
+  document.getElementById('input-tipo').value = tipo;
+
+  const label       = document.getElementById('label-login');
+  const input       = document.getElementById('login');
+  const linkCadastro = document.getElementById('link-cadastro');
 
   if (tipo === 'empresa') {
-    label.textContent = 'E-mail corporativo';
-    input.placeholder = 'contato@suaempresa.com.br';
-    
-    // Muda o link para a página de cadastro da empresa
-    linkCadastro.href = '<?= BASE_URL ?>/empresa/cadastro.php'; 
+    label.textContent  = 'E-mail corporativo';
+    input.placeholder  = 'contato@suaempresa.com.br';
+    input.type         = 'email';
+    linkCadastro.href  = '<?= BASE_URL ?>/empresa/cadastro.php';
+    linkCadastro.textContent = 'Cadastrar minha empresa';
   } else {
-    label.textContent = 'E-mail';
-    input.placeholder = 'Digite seu e-mail';
-    
-    // Muda o link para a página de cadastro do currículo do aluno
-    linkCadastro.href = '<?= BASE_URL ?>/aluno/cadastro.php';
+    label.textContent  = 'Login (e-mail ou RA)';
+    input.placeholder  = 'Digite seu e-mail ou RA';
+    input.type         = 'text';
+    linkCadastro.href  = '<?= BASE_URL ?>/aluno/cadastro.php';
+    linkCadastro.textContent = 'Criar conta gratuita';
   }
-}
-function fazerLogin() {
-  const email = document.getElementById('email').value.trim();
-  const senha = document.getElementById('senha').value.trim();
-  if (!email || !senha) { alert('Preencha e-mail e senha.'); return; }
-  alert('Login OK! Aqui vai conectar com a API.');
 }
 </script>
 
-<?php
-include BASE_PATH . '/includes/footer.php';
-?>
+<?php include BASE_PATH . '/includes/footer.php'; ?>

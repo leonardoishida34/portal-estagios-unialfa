@@ -12,10 +12,10 @@ require_once dirname(__DIR__) . '/config.php';
       <h4>Plataforma</h4>
       <div class="footer-links">
         <!-- Usa a constante BASE_URL para resolver o caminho absoluto do servidor -->
-        <a href="<?= BASE_URL ?>/empresa/empresa.php">Painel da empresa</a>
-        <a href="<?= BASE_URL ?>/aluno/vagas.php">Ver vagas</a>
-        <a href="<?= BASE_URL ?>/aluno/cadastro.php">Cadastrar currículo</a>
-        <a href="<?= BASE_URL ?>/index.php">Entrar</a>
+        <a href="<?= BASE_URL ?>/portal-estagios-unialfa/empresa/empresa.php">Painel da empresa</a>
+        <a href="<?= BASE_URL ?>/portal-estagios-unialfa/aluno/vagas.php">Ver vagas</a>
+        <a href="<?= BASE_URL ?>/portal-estagios-unialfa/aluno/cadastro.php">Cadastrar currículo</a>
+        <a href="<?= BASE_URL ?>/portal-estagios-unialfa/login.php">Entrar</a>
       </div>
     </div>
     <div>

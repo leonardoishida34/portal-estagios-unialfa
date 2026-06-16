@@ -1,20 +1,23 @@
 <?php
+session_start();
+
 $tituloPagina = 'Vagas — Portal UniALFA';
 $paginaAtiva  = 'vagas';
 $raiz         = '../';
-
 require_once __DIR__ . '/../config.php';
 include BASE_PATH . '/includes/header.php';
+// Verifica se tem alguém logado E se é aluno
+// Se não, redireciona para o login
+//if (!isset($_SESSION['usuario']) || $_SESSION['usuario']['tipo'] !== 'aluno') {
+  //  header('Location: ' . BASE_URL . '/portal-estagios-unialfa/login.php?erro=acesso-restrito');
+  //  exit;
+  //  }
 
 // Dados mockados — depois virão da API
-$vagas = [
-  ['id'=>1, 'titulo'=>'Desenvolvedor(a) Web', 'empresa'=>'TechSul Sistemas', 'area'=>'Tecnologia', 'tipo'=>'Presencial', 'carga'=>'30h/sem', 'descricao'=>'Vaga para alunos de TI com interesse em desenvolvimento web. Conhecimentos em HTML, CSS e lógica de programação são diferenciais.', 'status'=>'aberta'],
-  ['id'=>2, 'titulo'=>'Assistente Administrativo', 'empresa'=>'Grupo RB Comércio', 'area'=>'Administração', 'tipo'=>'Híbrido', 'carga'=>'20h/sem', 'descricao'=>'Apoio nas rotinas administrativas, controle de documentos e atendimento interno. Curso de Administração.', 'status'=>'aberta'],
-  ['id'=>3, 'titulo'=>'Auxiliar de Contabilidade', 'empresa'=>'Escritório Mota & Souza', 'area'=>'Contabilidade', 'tipo'=>'Presencial', 'carga'=>'30h/sem', 'descricao'=>'Auxílio em lançamentos, conciliações e rotinas contábeis. Para alunos de Ciências Contábeis.', 'status'=>'aberta'],
-  ['id'=>4, 'titulo'=>'Designer Gráfico Jr.', 'empresa'=>'Agência Pixel', 'area'=>'Design', 'tipo'=>'Remoto', 'carga'=>'20h/sem', 'descricao'=>'Criação de peças para redes sociais e materiais gráficos. Domínio do Canva ou Adobe Illustrator.', 'status'=>'aberta'],
-  ['id'=>5, 'titulo'=>'Suporte de TI', 'empresa'=>'Hospital Regional', 'area'=>'Tecnologia', 'tipo'=>'Presencial', 'carga'=>'30h/sem', 'descricao'=>'Suporte técnico a usuários, instalação e manutenção de equipamentos. Curso de TI.', 'status'=>'aberta'],
-  ['id'=>6, 'titulo'=>'Aux. de Recursos Humanos', 'empresa'=>'Cooperativa Umuarama', 'area'=>'Recursos Humanos', 'tipo'=>'Presencial', 'carga'=>'30h/sem', 'descricao'=>'Apoio no processo seletivo, onboarding e rotinas de RH. Curso de Administração ou Psicologia.', 'status'=>'aberta'],
-];
+  $vagas = [
+  1 => ['titulo'=>'Desenvolvedor(a) Web', 'empresa'=>'TechSul Sistemas', 'area'=>'Tecnologia', 'tipo'=>'Presencial', 'carga'=>'30h/sem', 'descricao'=>'Vaga voltada para alunos de TI. Conhecimentos em HTML, CSS e lógica de programação são diferenciais.', 'requisitos'=>'Cursando Tecnologia em Sistemas para Internet ou similar. Disponibilidade para trabalho presencial.'],
+  2 => ['titulo'=>'Assistente Administrativo', 'empresa'=>'Grupo RB Comércio', 'area'=>'Administração', 'tipo'=>'Híbrido', 'carga'=>'20h/sem', 'descricao'=>'Apoio nas rotinas administrativas.', 'requisitos'=>'Cursando Administração.'],
+];  
 ?>
 
 <style>
