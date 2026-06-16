@@ -17,7 +17,7 @@ async function listar(req, res, next) {
     const candidaturas = await prisma.candidatura.findMany({
       include: {
         aluno: { select: { id: true, nome: true, email: true, curso: true } },
-        vaga: { select: { id: true, titulo: true, empresa: true, area: true } }
+        vaga: { select: { id: true, titulo: true, area: true, empresa: { select: { nome: true } } } }
       },
       orderBy: { createdAt: 'desc' }
     })
@@ -32,10 +32,7 @@ async function buscarPorId(req, res, next) {
   try {
     const candidatura = await prisma.candidatura.findUniqueOrThrow({
       where: { id: Number(req.params.id) },
-      include: {
-        aluno: true,
-        vaga: true
-      }
+      include: { aluno: true, vaga: { include: { empresa: true } } }
     })
 
     res.json(candidatura)
@@ -48,7 +45,6 @@ async function criar(req, res, next) {
   try {
     const dados = candidaturaSchema.parse(req.body)
 
-    // Verifica se a vaga existe e está aberta
     const vaga = await prisma.vaga.findUnique({ where: { id: dados.vagaId } })
     if (!vaga) return res.status(404).json({ error: 'Vaga não encontrada' })
     if (vaga.status === 'FECHADA') return res.status(400).json({ error: 'Vaga está fechada para candidaturas' })
@@ -57,7 +53,7 @@ async function criar(req, res, next) {
       data: dados,
       include: {
         aluno: { select: { nome: true, email: true } },
-        vaga: { select: { titulo: true, empresa: true } }
+        vaga: { select: { titulo: true, empresa: { select: { nome: true } } } }
       }
     })
 
@@ -74,7 +70,6 @@ async function atualizarStatus(req, res, next) {
       where: { id: Number(req.params.id) },
       data: { status }
     })
-
     res.json(candidatura)
   } catch (err) {
     next(err)

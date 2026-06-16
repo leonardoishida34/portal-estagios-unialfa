@@ -4,8 +4,8 @@ const { z } = require('zod')
 const prisma = new PrismaClient()
 
 const vagaSchema = z.object({
+  empresaId: z.number().int().positive('ID da empresa inválido'),
   titulo: z.string().min(3, 'Título deve ter no mínimo 3 caracteres'),
-  empresa: z.string().min(2, 'Nome da empresa obrigatório'),
   descricao: z.string().min(10, 'Descrição deve ter no mínimo 10 caracteres'),
   area: z.string().min(2, 'Área obrigatória'),
   cargaHoraria: z.number().int().min(1).max(40),
@@ -22,7 +22,10 @@ async function listar(req, res, next) {
         ...(status && { status }),
         ...(area && { area: { contains: area } })
       },
-      include: { _count: { select: { candidaturas: true } } },
+      include: {
+        empresa: { select: { id: true, nome: true, email: true } },
+        _count: { select: { candidaturas: true } }
+      },
       orderBy: { createdAt: 'desc' }
     })
 
@@ -37,6 +40,7 @@ async function buscarPorId(req, res, next) {
     const vaga = await prisma.vaga.findUniqueOrThrow({
       where: { id: Number(req.params.id) },
       include: {
+        empresa: true,
         candidaturas: {
           include: { aluno: { select: { id: true, nome: true, email: true, curso: true } } }
         }
@@ -52,7 +56,10 @@ async function buscarPorId(req, res, next) {
 async function criar(req, res, next) {
   try {
     const dados = vagaSchema.parse(req.body)
-    const vaga = await prisma.vaga.create({ data: dados })
+    const vaga = await prisma.vaga.create({
+      data: dados,
+      include: { empresa: { select: { nome: true } } }
+    })
     res.status(201).json(vaga)
   } catch (err) {
     next(err)

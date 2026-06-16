@@ -1,7 +1,6 @@
 const { ZodError } = require('zod')
 
 function errorHandler(err, req, res, next) {
-  // Erro de validação Zod
   if (err instanceof ZodError) {
     return res.status(400).json({
       error: 'Dados inválidos',
@@ -9,7 +8,6 @@ function errorHandler(err, req, res, next) {
     })
   }
 
-  // Erros do Prisma
   if (err.code === 'P2002') {
     return res.status(409).json({ error: 'Registro já existe (campo único duplicado)' })
   }

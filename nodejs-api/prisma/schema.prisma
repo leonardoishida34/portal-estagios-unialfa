@@ -7,26 +7,38 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Empresa {
+  id        Int      @id @default(autoincrement())
+  nome      String
+  cnpj      String   @unique
+  area      String
+  email     String
+  telefone  String?
+  createdAt DateTime @default(now())
+  vagas     Vaga[]
+}
+
 model Aluno {
-  id           Int            @id @default(autoincrement())
+  id           Int           @id @default(autoincrement())
   nome         String
-  email        String         @unique
+  email        String        @unique
   curso        String
   periodo      Int
-  createdAt    DateTime       @default(now())
+  createdAt    DateTime      @default(now())
   candidaturas Candidatura[]
 }
 
 model Vaga {
-  id           Int            @id @default(autoincrement())
+  id           Int           @id @default(autoincrement())
+  empresaId    Int
   titulo       String
-  empresa      String
   descricao    String
   area         String
   cargaHoraria Int
   remuneracao  Float?
-  status       String         @default("ABERTA")
-  createdAt    DateTime       @default(now())
+  status       String        @default("ABERTA")
+  createdAt    DateTime      @default(now())
+  empresa      Empresa       @relation(fields: [empresaId], references: [id])
   candidaturas Candidatura[]
 }
 
