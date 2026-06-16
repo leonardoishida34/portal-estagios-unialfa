@@ -1,13 +1,12 @@
 const { PrismaClient } = require('@prisma/client')
 const { z } = require('zod')
-
 const prisma = new PrismaClient()
 
 const alunoSchema = z.object({
-  nome: z.string().min(3, 'Nome deve ter no mínimo 3 caracteres'),
-  email: z.string().email('E-mail inválido'),
-  curso: z.string().min(3, 'Curso obrigatório'),
-  periodo: z.number().int().min(1).max(10)
+  ra:   z.string().length(8, 'RA deve ter exatamente 8 caracteres'),
+  nome: z.string().min(3, 'Nome obrigatorio'),
+  curso: z.string().min(3, 'Curso obrigatorio'),
+  apto: z.boolean().default(true)
 })
 
 async function listar(req, res, next) {
@@ -20,13 +19,13 @@ async function listar(req, res, next) {
   } catch (err) { next(err) }
 }
 
-async function buscarPorId(req, res, next) {
+async function buscarPorRa(req, res, next) {
   try {
     const aluno = await prisma.aluno.findUniqueOrThrow({
-      where: { id: Number(req.params.id) },
+      where: { ra: req.params.ra },
       include: {
         candidaturas: {
-          include: { vaga: { select: { titulo: true, area: true, status: true, empresa: { select: { nome: true } } } } }
+          include: { vaga: { select: { titulo: true, ativa: true, empresa: { select: { razaoSocial: true } } } } }
         }
       }
     })
@@ -45,16 +44,17 @@ async function criar(req, res, next) {
 async function atualizar(req, res, next) {
   try {
     const dados = alunoSchema.partial().parse(req.body)
-    const aluno = await prisma.aluno.update({ where: { id: Number(req.params.id) }, data: dados })
+    const aluno = await prisma.aluno.update({ where: { ra: req.params.ra }, data: dados })
     res.json(aluno)
   } catch (err) { next(err) }
 }
 
 async function remover(req, res, next) {
   try {
-    await prisma.aluno.delete({ where: { id: Number(req.params.id) } })
+    await prisma.candidatura.deleteMany({ where: { alunoRa: req.params.ra } })
+    await prisma.aluno.delete({ where: { ra: req.params.ra } })
     res.status(204).send()
   } catch (err) { next(err) }
 }
 
-module.exports = { listar, buscarPorId, criar, atualizar, remover }
+module.exports = { listar, buscarPorRa, criar, atualizar, remover }
