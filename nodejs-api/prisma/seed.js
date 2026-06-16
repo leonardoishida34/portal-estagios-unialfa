@@ -11,7 +11,7 @@ async function main() {
 
   // Empresas
   const empresa1 = await prisma.empresa.create({
-    data: { nome: 'TechSoft', cnpj: '12.345.678/0001-90', area: 'TI', email: 'rh@techsoft.com', telefone: '(44) 3333-1111' }
+    data: { nome: 'TechSoft Umuarama', cnpj: '12.345.678/0001-90', area: 'TI', email: 'rh@techsoft.com', telefone: '(44) 3333-1111' }
   })
   const empresa2 = await prisma.empresa.create({
     data: { nome: 'InfoSystems', cnpj: '98.765.432/0001-10', area: 'Suporte', email: 'rh@infosystems.com', telefone: '(44) 3333-2222' }
@@ -30,13 +30,13 @@ async function main() {
 
   // Vagas
   const vaga1 = await prisma.vaga.create({
-    data: { empresaId: empresa1.id, titulo: 'Desenvolvedor Web Junior', descricao: 'Desenvolvimento de sistemas web', area: 'TI', cargaHoraria: 20, remuneracao: 800 }
+    data: { empresaId: empresa1.id, titulo: 'Desenvolvedor Web Junior', descricao: 'Desenvolvimento de sistemas web com JavaScript e PHP', area: 'TI', cargaHoraria: 20, remuneracao: 800 }
   })
   const vaga2 = await prisma.vaga.create({
-    data: { empresaId: empresa2.id, titulo: 'Estagiário de Suporte', descricao: 'Suporte técnico a usuários', area: 'Suporte', cargaHoraria: 30, remuneracao: 600 }
+    data: { empresaId: empresa2.id, titulo: 'Estagiário de Suporte', descricao: 'Suporte técnico a usuários internos e externos', area: 'Suporte', cargaHoraria: 30, remuneracao: 600 }
   })
   await prisma.vaga.create({
-    data: { empresaId: empresa3.id, titulo: 'Analista de Dados', descricao: 'Análise de relatórios e dashboards', area: 'BI', cargaHoraria: 20, remuneracao: 900, status: 'FECHADA' }
+    data: { empresaId: empresa3.id, titulo: 'Analista de Dados', descricao: 'Análise de relatórios e criação de dashboards', area: 'BI', cargaHoraria: 20, remuneracao: 900, status: 'FECHADA' }
   })
 
   // Candidaturas

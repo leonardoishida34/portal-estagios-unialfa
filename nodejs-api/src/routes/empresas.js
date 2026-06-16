@@ -1,12 +1,9 @@
 const { Router } = require('express')
-const empresaController = require('../controllers/empresaController')
-
+const c = require('../controllers/empresaController')
 const router = Router()
-
-router.get('/', empresaController.listar)          // GET    /empresas
-router.get('/:id', empresaController.buscarPorId)  // GET    /empresas/:id
-router.post('/', empresaController.criar)          // POST   /empresas
-router.put('/:id', empresaController.atualizar)    // PUT    /empresas/:id
-router.delete('/:id', empresaController.remover)   // DELETE /empresas/:id
-
+router.get('/', c.listar)
+router.get('/:id', c.buscarPorId)
+router.post('/', c.criar)
+router.put('/:id', c.atualizar)
+router.delete('/:id', c.remover)
 module.exports = router

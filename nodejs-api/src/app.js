@@ -12,18 +12,15 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 
-// Rotas
 app.use('/vagas', vagaRoutes)
 app.use('/candidaturas', candidaturaRoutes)
 app.use('/alunos', alunoRoutes)
 app.use('/empresas', empresaRoutes)
 
-// Health check
 app.get('/', (req, res) => {
   res.json({ message: 'API Portal de Estágios UniALFA', status: 'online' })
 })
 
-// Middleware de erro (deve ser o último)
 app.use(errorHandler)
 
 module.exports = app

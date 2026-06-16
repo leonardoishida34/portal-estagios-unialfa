@@ -1,12 +1,9 @@
 const { Router } = require('express')
-const alunoController = require('../controllers/alunoController')
-
+const c = require('../controllers/alunoController')
 const router = Router()
-
-router.get('/', alunoController.listar)           // GET    /alunos
-router.get('/:id', alunoController.buscarPorId)   // GET    /alunos/:id
-router.post('/', alunoController.criar)           // POST   /alunos
-router.put('/:id', alunoController.atualizar)     // PUT    /alunos/:id
-router.delete('/:id', alunoController.remover)    // DELETE /alunos/:id
-
+router.get('/', c.listar)
+router.get('/:id', c.buscarPorId)
+router.post('/', c.criar)
+router.put('/:id', c.atualizar)
+router.delete('/:id', c.remover)
 module.exports = router

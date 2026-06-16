@@ -16,23 +16,19 @@ const vagaSchema = z.object({
 async function listar(req, res, next) {
   try {
     const { status, area } = req.query
-
     const vagas = await prisma.vaga.findMany({
       where: {
         ...(status && { status }),
         ...(area && { area: { contains: area } })
       },
       include: {
-        empresa: { select: { id: true, nome: true, email: true } },
+        empresa: { select: { id: true, nome: true, area: true } },
         _count: { select: { candidaturas: true } }
       },
       orderBy: { createdAt: 'desc' }
     })
-
     res.json(vagas)
-  } catch (err) {
-    next(err)
-  }
+  } catch (err) { next(err) }
 }
 
 async function buscarPorId(req, res, next) {
@@ -46,11 +42,8 @@ async function buscarPorId(req, res, next) {
         }
       }
     })
-
     res.json(vaga)
-  } catch (err) {
-    next(err)
-  }
+  } catch (err) { next(err) }
 }
 
 async function criar(req, res, next) {
@@ -61,31 +54,22 @@ async function criar(req, res, next) {
       include: { empresa: { select: { nome: true } } }
     })
     res.status(201).json(vaga)
-  } catch (err) {
-    next(err)
-  }
+  } catch (err) { next(err) }
 }
 
 async function atualizar(req, res, next) {
   try {
     const dados = vagaSchema.partial().parse(req.body)
-    const vaga = await prisma.vaga.update({
-      where: { id: Number(req.params.id) },
-      data: dados
-    })
+    const vaga = await prisma.vaga.update({ where: { id: Number(req.params.id) }, data: dados })
     res.json(vaga)
-  } catch (err) {
-    next(err)
-  }
+  } catch (err) { next(err) }
 }
 
 async function remover(req, res, next) {
   try {
     await prisma.vaga.delete({ where: { id: Number(req.params.id) } })
     res.status(204).send()
-  } catch (err) {
-    next(err)
-  }
+  } catch (err) { next(err) }
 }
 
 module.exports = { listar, buscarPorId, criar, atualizar, remover }

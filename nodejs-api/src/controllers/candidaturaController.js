@@ -21,11 +21,8 @@ async function listar(req, res, next) {
       },
       orderBy: { createdAt: 'desc' }
     })
-
     res.json(candidaturas)
-  } catch (err) {
-    next(err)
-  }
+  } catch (err) { next(err) }
 }
 
 async function buscarPorId(req, res, next) {
@@ -34,11 +31,8 @@ async function buscarPorId(req, res, next) {
       where: { id: Number(req.params.id) },
       include: { aluno: true, vaga: { include: { empresa: true } } }
     })
-
     res.json(candidatura)
-  } catch (err) {
-    next(err)
-  }
+  } catch (err) { next(err) }
 }
 
 async function criar(req, res, next) {
@@ -57,10 +51,11 @@ async function criar(req, res, next) {
       }
     })
 
-    res.status(201).json(candidatura)
-  } catch (err) {
-    next(err)
-  }
+    res.status(201).json({
+      mensagem: 'Candidatura enviada com sucesso!',
+      candidatura
+    })
+  } catch (err) { next(err) }
 }
 
 async function atualizarStatus(req, res, next) {
@@ -70,19 +65,15 @@ async function atualizarStatus(req, res, next) {
       where: { id: Number(req.params.id) },
       data: { status }
     })
-    res.json(candidatura)
-  } catch (err) {
-    next(err)
-  }
+    res.json({ mensagem: `Status atualizado para ${status}`, candidatura })
+  } catch (err) { next(err) }
 }
 
 async function remover(req, res, next) {
   try {
     await prisma.candidatura.delete({ where: { id: Number(req.params.id) } })
     res.status(204).send()
-  } catch (err) {
-    next(err)
-  }
+  } catch (err) { next(err) }
 }
 
 module.exports = { listar, buscarPorId, criar, atualizarStatus, remover }
