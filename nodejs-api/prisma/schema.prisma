@@ -7,50 +7,59 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Empresa {
-  id        Int      @id @default(autoincrement())
-  nome      String   @db.VarChar(100)
-  cnpj      String   @unique @db.VarChar(18)
-  area      String   @db.VarChar(50)
-  email     String   @db.VarChar(150)
-  telefone  String?  @db.VarChar(20)
-  status    String   @default("ATIVA") @db.VarChar(10)
-  createdAt DateTime @default(now())
-  vagas     Vaga[]
+model Aluno {
+  ra           String        @id @db.VarChar(8)
+  nome         String        @db.VarChar(255)
+  curso        String        @db.VarChar(100)
+  apto         Boolean       @default(true)
+  candidaturas Candidatura[]
+
+  @@map("alunos")
 }
 
-model Aluno {
-  id           Int           @id @default(autoincrement())
-  nome         String        @db.VarChar(100)
-  email        String        @unique @db.VarChar(150)
-  curso        String        @db.VarChar(100)
-  periodo      Int
-  createdAt    DateTime      @default(now())
-  candidaturas Candidatura[]
+model Empresa {
+  id          BigInt  @id @default(autoincrement())
+  razaoSocial String  @map("razao_social") @db.VarChar(255)
+  cnpj        String  @unique @db.VarChar(18)
+  email       String  @db.VarChar(255)
+  telefone    String? @db.VarChar(20)
+  aprovada    Boolean @default(false)
+  vagas       Vaga[]
+
+  @@map("empresas")
 }
 
 model Vaga {
-  id           Int           @id @default(autoincrement())
-  empresaId    Int
-  titulo       String        @db.VarChar(100)
+  id           BigInt        @id @default(autoincrement())
+  titulo       String        @db.VarChar(255)
   descricao    String        @db.Text
-  area         String        @db.VarChar(50)
-  cargaHoraria Int
-  remuneracao  Float?
-  status       String        @default("ABERTA") @db.VarChar(10)
-  createdAt    DateTime      @default(now())
+  bolsa        Decimal?      @db.Decimal(10, 2)
+  empresaId    BigInt        @map("empresa_id")
+  ativa        Boolean       @default(true)
   empresa      Empresa       @relation(fields: [empresaId], references: [id])
   candidaturas Candidatura[]
+
+  @@map("vagas")
 }
 
 model Candidatura {
-  id        Int      @id @default(autoincrement())
-  alunoId   Int
-  vagaId    Int
-  status    String   @default("PENDENTE") @db.VarChar(10)
-  createdAt DateTime @default(now())
-  aluno     Aluno    @relation(fields: [alunoId], references: [id])
-  vaga      Vaga     @relation(fields: [vagaId], references: [id])
+  id      BigInt @id @default(autoincrement())
+  alunoRa String @map("aluno_ra") @db.VarChar(8)
+  vagaId  BigInt @map("vaga_id")
+  status  String @default("Pendente") @db.VarChar(50)
+  aluno   Aluno  @relation(fields: [alunoRa], references: [ra])
+  vaga    Vaga   @relation(fields: [vagaId], references: [id])
 
-  @@unique([alunoId, vagaId])
+  @@unique([alunoRa, vagaId])
+  @@map("candidaturas")
+}
+
+model Usuario {
+  id     BigInt @id @default(autoincrement())
+  nome   String @db.VarChar(100)
+  login  String @unique @db.VarChar(50)
+  senha  String @db.VarChar(255)
+  perfil String @db.VarChar(20)
+
+  @@map("usuarios")
 }
