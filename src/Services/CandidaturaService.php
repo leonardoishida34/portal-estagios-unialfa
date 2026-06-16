@@ -2,54 +2,60 @@
 
 // ============================================
 // SERVICE: CandidaturaService
-// Responsável pelas chamadas à API relacionadas
-// às candidaturas. Usa o ApiClient para fazer
-// as requisições e converte os dados retornados
-// em objetos Candidatura.
+// Consome a API Node.js — rotas de candidaturas:
+//
+// GET    /candidaturas              → listar todas
+// GET    /candidaturas/:id          → buscar uma
+// POST   /candidaturas              → criar
+// PATCH  /candidaturas/:id/status   → atualizar status
+// DELETE /candidaturas/:id          → remover
+//
+// ATENÇÃO: atualizar status usa PATCH, não PUT!
+// E a rota é /:id/status, não só /:id
 // ============================================
 
-require_once BASE_PATH . '/src/Services/ApiClient.php';
+require_once BASE_PATH . '/src/Services/ApiCliente.php';
 require_once BASE_PATH . '/src/Models/Candidatura.php';
 
 class CandidaturaService {
 
-    // ── Dependência ──
-    // Usa o ApiClient para fazer as requisições HTTP
-    private ApiClient $client;
+    private ApiCliente $client;
 
     public function __construct() {
-        $this->client = new ApiClient();
+        $this->client = new ApiCliente();
     }
 
-    // ── Listar candidaturas de um aluno ──
-    // Faz GET /candidaturas?aluno_id={id} na API
-    // Usado na tela "Minhas Candidaturas" do aluno
-    // Retorna array de objetos Candidatura
+    // GET /candidaturas?aluno_id=X
+    // Retorna candidaturas de um aluno específico
     public function listarPorAluno(int $alunoId): array {
         $data = $this->client->get("/candidaturas?aluno_id={$alunoId}");
 
-        if (isset($data['erro'])) return [];
+        if (!is_array($data) || isset($data['erro'])) return [];
 
-        // Converte cada item em objeto Candidatura
         return array_map(fn($item) => new Candidatura($item), $data);
     }
 
-    // ── Listar candidatos de uma vaga ──
-    // Faz GET /candidaturas?vaga_id={id} na API
-    // Usado no painel da empresa para ver quem se candidatou
-    // Retorna array de objetos Candidatura
+    // GET /candidaturas?vaga_id=X
+    // Retorna candidatos de uma vaga específica
     public function listarPorVaga(int $vagaId): array {
         $data = $this->client->get("/candidaturas?vaga_id={$vagaId}");
 
-        if (isset($data['erro'])) return [];
+        if (!is_array($data) || isset($data['erro'])) return [];
 
         return array_map(fn($item) => new Candidatura($item), $data);
     }
 
-    // ── Enviar candidatura ──
-    // Faz POST /candidaturas na API com os dados
-    // Chamado quando o aluno clica em "Enviar candidatura"
-    // Retorna a resposta da API (sucesso ou erro)
+    // GET /candidaturas/:id
+    public function buscarCandidatura(int $id): ?Candidatura {
+        $data = $this->client->get("/candidaturas/{$id}");
+
+        if (!isset($data['id'])) return null;
+
+        return new Candidatura($data);
+    }
+
+    // POST /candidaturas
+    // Envia candidatura do aluno para a vaga
     public function candidatar(int $alunoId, int $vagaId, string $carta): array {
         return $this->client->post('/candidaturas', [
             'aluno_id' => $alunoId,
@@ -58,13 +64,17 @@ class CandidaturaService {
         ]);
     }
 
-    // ── Atualizar status da candidatura ──
-    // Faz PUT /candidaturas/{id} na API com o novo status
-    // Chamado pela empresa quando aprova ou recusa um candidato
-    // Status possíveis: 'em_analise', 'aprovado', 'recusado'
+    // PATCH /candidaturas/:id/status
+    // ATENÇÃO: usa PATCH e rota especial /status no final
+    // A empresa usa isso para aprovar ou recusar candidatos
     public function atualizarStatus(int $id, string $status): array {
-        return $this->client->put("/candidaturas/{$id}", [
+        return $this->client->patch("/candidaturas/{$id}/status", [
             'status' => $status,
         ]);
+    }
+
+    // DELETE /candidaturas/:id
+    public function remover(int $id): array {
+        return $this->client->delete("/candidaturas/{$id}");
     }
 }

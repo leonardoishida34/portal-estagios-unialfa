@@ -8,17 +8,17 @@
 // retornados em objetos Empresa.
 // ============================================
 
-require_once BASE_PATH . '/src/Services/ApiClient.php';
+require_once BASE_PATH . '/src/Services/ApiCliente.php';
 require_once BASE_PATH . '/src/Models/Empresa.php';
 
 class EmpresaService {
 
     // ── Dependência ──
     // Usa o ApiClient para fazer as requisições HTTP
-    private ApiClient $client;
+    private ApiCliente $client;
 
     public function __construct() {
-        $this->client = new ApiClient();
+        $this->client = new ApiCliente();
     }
 
     // ── Buscar empresa pelo ID ──

@@ -2,57 +2,72 @@
 
 // ============================================
 // SERVICE: AlunoService
-// Responsável pelas chamadas à API relacionadas
-// aos alunos. Usa o ApiClient para fazer as
-// requisições e converte os dados retornados
-// em objetos Aluno.
+// Consome a API Node.js — rotas de alunos:
+//
+// GET    /alunos          → listar todos
+// GET    /alunos/:id      → buscar um
+// POST   /alunos          → criar
+// PUT    /alunos/:id      → atualizar
+// DELETE /alunos/:id      → remover
 // ============================================
 
-require_once BASE_PATH . '/src/Services/ApiClient.php';
+require_once BASE_PATH . '/src/Services/ApiCliente.php';
 require_once BASE_PATH . '/src/Models/Aluno.php';
+
 class AlunoService {
 
-    // ── Dependência ──
-    // Usa o ApiClient para fazer as requisições HTTP
-    private ApiClient $client;
+    private ApiCliente $client;
 
     public function __construct() {
-        $this->client = new ApiClient();
+        $this->client = new ApiCliente();
     }
 
-    // ── Buscar aluno pelo ID ──
-    // Faz GET /alunos/{id} na API
-    // Retorna objeto Aluno ou null se não encontrar
+    // GET /alunos/:id
+    // Retorna objeto Aluno ou null
     public function buscarAluno(int $id): ?Aluno {
         $data = $this->client->get("/alunos/{$id}");
 
-        if (isset($data['erro']) || !isset($data['id'])) return null;
+        if (!isset($data['id'])) return null;
 
         return new Aluno($data);
     }
 
-    // ── Cadastrar novo aluno ──
-    // Faz POST /alunos na API com os dados do formulário
-    // Retorna a resposta da API (sucesso ou erro)
+    // POST /alunos
+    // Cria novo aluno — senha já vem criptografada do controller
     public function cadastrarAluno(array $dados): array {
         return $this->client->post('/alunos', $dados);
     }
 
-    // ── Login do aluno ──
-    // Faz POST /auth/login na API com email e senha
-    // Se autenticado, a API retorna os dados do aluno + token
-    public function login(string $email, string $senha): array {
-        return $this->client->post('/auth/login', [
-            'email' => $email,
-            'senha' => $senha,
-            'tipo'  => 'aluno',
-        ]);
-    }
-
-    // ── Atualizar dados do aluno ──
-    // Faz PUT /alunos/{id} na API com os novos dados
-    // Retorna a resposta da API (sucesso ou erro)
+    // PUT /alunos/:id
+    // Atualiza dados do aluno
     public function atualizarAluno(int $id, array $dados): array {
         return $this->client->put("/alunos/{$id}", $dados);
+    }
+
+    // POST /alunos + busca por email
+    // Como a API não tem rota de login ainda,
+    // busca o aluno pelo email e verifica a senha no PHP
+    // com password_verify()
+    public function login(string $email, string $senha): array {
+        // Busca todos os alunos e filtra pelo email
+        $data = $this->client->get("/alunos?email={$email}");
+
+        // Se não encontrou nenhum aluno com esse email
+        if (empty($data) || !isset($data[0])) {
+            return ['erro' => 'E-mail ou senha incorretos.'];
+        }
+
+        $aluno = $data[0];
+
+        // Verifica a senha com password_verify()
+        // Compara a senha digitada com o hash bcrypt salvo no banco
+        if (!password_verify($senha, $aluno['senha'])) {
+            return ['erro' => 'E-mail ou senha incorretos.'];
+        }
+
+        // Remove a senha antes de retornar
+        unset($aluno['senha']);
+
+        return $aluno;
     }
 }
