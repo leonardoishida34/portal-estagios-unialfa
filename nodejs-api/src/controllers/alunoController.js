@@ -17,9 +17,7 @@ async function listar(req, res, next) {
       orderBy: { nome: 'asc' }
     })
     res.json(alunos)
-  } catch (err) {
-    next(err)
-  }
+  } catch (err) { next(err) }
 }
 
 async function buscarPorId(req, res, next) {
@@ -33,9 +31,7 @@ async function buscarPorId(req, res, next) {
       }
     })
     res.json(aluno)
-  } catch (err) {
-    next(err)
-  }
+  } catch (err) { next(err) }
 }
 
 async function criar(req, res, next) {
@@ -43,31 +39,22 @@ async function criar(req, res, next) {
     const dados = alunoSchema.parse(req.body)
     const aluno = await prisma.aluno.create({ data: dados })
     res.status(201).json(aluno)
-  } catch (err) {
-    next(err)
-  }
+  } catch (err) { next(err) }
 }
 
 async function atualizar(req, res, next) {
   try {
     const dados = alunoSchema.partial().parse(req.body)
-    const aluno = await prisma.aluno.update({
-      where: { id: Number(req.params.id) },
-      data: dados
-    })
+    const aluno = await prisma.aluno.update({ where: { id: Number(req.params.id) }, data: dados })
     res.json(aluno)
-  } catch (err) {
-    next(err)
-  }
+  } catch (err) { next(err) }
 }
 
 async function remover(req, res, next) {
   try {
     await prisma.aluno.delete({ where: { id: Number(req.params.id) } })
     res.status(204).send()
-  } catch (err) {
-    next(err)
-  }
+  } catch (err) { next(err) }
 }
 
 module.exports = { listar, buscarPorId, criar, atualizar, remover }

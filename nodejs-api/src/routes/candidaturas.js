@@ -1,12 +1,9 @@
 const { Router } = require('express')
-const candidaturaController = require('../controllers/candidaturaController')
-
+const c = require('../controllers/candidaturaController')
 const router = Router()
-
-router.get('/', candidaturaController.listar)                      // GET    /candidaturas
-router.get('/:id', candidaturaController.buscarPorId)              // GET    /candidaturas/:id
-router.post('/', candidaturaController.criar)                      // POST   /candidaturas
-router.patch('/:id/status', candidaturaController.atualizarStatus) // PATCH  /candidaturas/:id/status
-router.delete('/:id', candidaturaController.remover)               // DELETE /candidaturas/:id
-
+router.get('/', c.listar)
+router.get('/:id', c.buscarPorId)
+router.post('/', c.criar)
+router.patch('/:id/status', c.atualizarStatus)
+router.delete('/:id', c.remover)
 module.exports = router

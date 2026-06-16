@@ -3,26 +3,27 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
 model Empresa {
   id        Int      @id @default(autoincrement())
-  nome      String
-  cnpj      String   @unique
-  area      String
-  email     String
-  telefone  String?
+  nome      String   @db.VarChar(100)
+  cnpj      String   @unique @db.VarChar(18)
+  area      String   @db.VarChar(50)
+  email     String   @db.VarChar(150)
+  telefone  String?  @db.VarChar(20)
+  status    String   @default("ATIVA") @db.VarChar(10)
   createdAt DateTime @default(now())
   vagas     Vaga[]
 }
 
 model Aluno {
   id           Int           @id @default(autoincrement())
-  nome         String
-  email        String        @unique
-  curso        String
+  nome         String        @db.VarChar(100)
+  email        String        @unique @db.VarChar(150)
+  curso        String        @db.VarChar(100)
   periodo      Int
   createdAt    DateTime      @default(now())
   candidaturas Candidatura[]
@@ -31,12 +32,12 @@ model Aluno {
 model Vaga {
   id           Int           @id @default(autoincrement())
   empresaId    Int
-  titulo       String
-  descricao    String
-  area         String
+  titulo       String        @db.VarChar(100)
+  descricao    String        @db.Text
+  area         String        @db.VarChar(50)
   cargaHoraria Int
   remuneracao  Float?
-  status       String        @default("ABERTA")
+  status       String        @default("ABERTA") @db.VarChar(10)
   createdAt    DateTime      @default(now())
   empresa      Empresa       @relation(fields: [empresaId], references: [id])
   candidaturas Candidatura[]
@@ -46,7 +47,7 @@ model Candidatura {
   id        Int      @id @default(autoincrement())
   alunoId   Int
   vagaId    Int
-  status    String   @default("PENDENTE")
+  status    String   @default("PENDENTE") @db.VarChar(10)
   createdAt DateTime @default(now())
   aluno     Aluno    @relation(fields: [alunoId], references: [id])
   vaga      Vaga     @relation(fields: [vagaId], references: [id])

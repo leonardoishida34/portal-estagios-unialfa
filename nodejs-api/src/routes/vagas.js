@@ -1,12 +1,9 @@
 const { Router } = require('express')
-const vagaController = require('../controllers/vagaController')
-
+const c = require('../controllers/vagaController')
 const router = Router()
-
-router.get('/', vagaController.listar)           // GET    /vagas
-router.get('/:id', vagaController.buscarPorId)   // GET    /vagas/:id
-router.post('/', vagaController.criar)           // POST   /vagas
-router.put('/:id', vagaController.atualizar)     // PUT    /vagas/:id
-router.delete('/:id', vagaController.remover)    // DELETE /vagas/:id
-
+router.get('/', c.listar)
+router.get('/:id', c.buscarPorId)
+router.post('/', c.criar)
+router.put('/:id', c.atualizar)
+router.delete('/:id', c.remover)
 module.exports = router
