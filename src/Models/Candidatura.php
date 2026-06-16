@@ -1,62 +1,61 @@
 <?php
-
-// ============================================
-// MODEL: Candidatura
-// Representa a candidatura de um aluno
-// a uma vaga de estágio.
-// Recebe os dados da API Node.js e encapsula
-// as informações em um objeto PHP.
-// ============================================
+// Representa a candidatura de um aluno a uma vaga.
+// Campos do banco (portal_estagios.candidaturas):
+// id        → bigint(20)
+// aluno_ra  → varchar(8)  — FK para alunos (usa RA, não ID!)
+// vaga_id   → bigint(20)  — FK para vagas
+// status    → varchar(50) — 'pendente' | 'aprovado' | 'reprovado'
+//
+// ATENÇÃO: não tem campo 'carta' no banco!
+// A chave do aluno é o RA (string), não um ID (int)
 
 class Candidatura {
 
     // ── Atributos privados (encapsulamento) ──
-    // Ninguém acessa direto — só pelos getters abaixo
     private int    $id;
-    private int    $alunoId;   // ID do aluno que se candidatou
-    private int    $vagaId;    // ID da vaga que foi candidatada
-    private string $carta;     // Carta de apresentação
-    private string $status;    // 'em_analise' | 'aprovado' | 'recusado'
-    private string $dataCriacao;
+    private string $alunoRa;  // campo no banco: aluno_ra — é string!
+    private int    $vagaId;   // campo no banco: vaga_id
+    private string $status;   // 'pendente' | 'aprovado' | 'reprovado'
 
     // ── Construtor ──
-    // Recebe um array com os dados vindos da API
-    // Ex: ['id' => 1, 'aluno_id' => 3, 'vaga_id' => 5, 'status' => 'em_analise', ...]
-    // O ?? define um valor padrão caso o campo não venha na resposta
+    // Recebe array com dados vindos da API
+    // Ex: ['id' => 1, 'aluno_ra' => '2024001', 'vaga_id' => 3, 'status' => 'pendente']
     public function __construct(array $data) {
-        $this->id          = $data['id']           ?? 0;
-        $this->alunoId     = $data['aluno_id']     ?? 0;
-        $this->vagaId      = $data['vaga_id']      ?? 0;
-        $this->carta       = $data['carta']        ?? '';
-        $this->status      = $data['status']       ?? 'em_analise';
-        $this->dataCriacao = $data['created_at']   ?? date('Y-m-d');
+        $this->id      = $data['id']       ?? 0;
+        // banco usa aluno_ra com underscore
+        $this->alunoRa = $data['aluno_ra'] ?? '';
+        // banco usa vaga_id com underscore
+        $this->vagaId  = (int)($data['vaga_id'] ?? 0);
+        $this->status  = $data['status']   ?? 'pendente';
     }
 
     // ── Getters ──
-    // Métodos públicos para acessar os atributos privados
-    // A view chama $candidatura->getStatus() em vez de $candidatura['status']
-    public function getId(): int            { return $this->id; }
-    public function getAlunoId(): int       { return $this->alunoId; }
-    public function getVagaId(): int        { return $this->vagaId; }
-    public function getCarta(): string      { return $this->carta; }
-    public function getStatus(): string     { return $this->status; }
-    public function getDataCriacao(): string { return $this->dataCriacao; }
+    public function getId(): int       { return $this->id; }
+    public function getAlunoRa(): string { return $this->alunoRa; }
+    public function getVagaId(): int   { return $this->vagaId; }
+    public function getStatus(): string { return $this->status; }
 
     // ── Métodos auxiliares ──
-    // Facilitam verificações de status na view
-    // Ex: if ($candidatura->isAprovada()) { mostrar parabéns }
-    public function isEmAnalise(): bool { return $this->status === 'em_analise'; }
-    public function isAprovada(): bool  { return $this->status === 'aprovado'; }
-    public function isRecusada(): bool  { return $this->status === 'recusado'; }
+    public function isPendente(): bool  { return $this->status === 'pendente'; }
+    public function isAprovado(): bool  { return $this->status === 'aprovado'; }
+    public function isReprovado(): bool { return $this->status === 'reprovado'; }
 
-    // ── Método para exibição ──
-    // Retorna o label amigável do status para mostrar na view
+    // Retorna label amigável para mostrar na view
     public function getStatusLabel(): string {
         return match($this->status) {
-            'em_analise' => 'Em análise',
-            'aprovado'   => 'Aprovado ✓',
-            'recusado'   => 'Recusado',
-            default      => 'Desconhecido'
+            'pendente'  => 'Em análise',
+            'aprovado'  => 'Aprovado ✓',
+            'reprovado' => 'Reprovado',
+            default     => 'Desconhecido'
+        };
+    }
+
+    // Retorna classe CSS do badge conforme status
+    public function getStatusBadge(): string {
+        return match($this->status) {
+            'aprovado'  => 'badge-green',
+            'reprovado' => 'badge-red',
+            default     => 'badge-blue'
         };
     }
 }

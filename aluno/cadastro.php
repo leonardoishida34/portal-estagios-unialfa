@@ -89,24 +89,7 @@ include BASE_PATH . '/includes/header.php';
     <div class="form-group">
       <label>Nome completo *</label>
       <input type="text" placeholder="Seu nome completo" />
-    </div>
-
-    <div class="row-2">
-      <div class="form-group">
-        <label>CPF *</label>
-        <input type="text" placeholder="000.000.000-00" maxlength="14" />
-      </div>
-      <div class="form-group">
-        <label>Telefone *</label>
-        <input type="tel" placeholder="(44) 99999-0000" />
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label>E-mail *</label>
-      <input type="email" placeholder="Digite seu e-mail" />
-    </div>
-
+    </div>  
     <p class="secao-titulo" style="margin-top:1.5rem">Dados acadêmicos</p>
 
     <div class="row-2">

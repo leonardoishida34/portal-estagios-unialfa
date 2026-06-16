@@ -1,47 +1,41 @@
 <?php
+// ============================================
 // Representa um aluno cadastrado no portal.
-// Recebe os dados da API Node.js e encapsula
+// Campos do banco (portal_estagios.alunos):
+// ra       → varchar(8)   — Registro Acadêmico (chave primária)
+// nome     → varchar(255)
+// curso    → varchar(100)
+// apto     → tinyint(1)   — 1 = apto a estagiar, 0 = não apto
+// ============================================
 
 class Aluno {
 
     // ── Atributos privados (encapsulamento) ──
-    // Ninguém acessa direto — só pelos getters abaixo
-    private int    $id;
+    private string $ra;    // chave primária — não é int, é string!
     private string $nome;
-    private string $email;
-    private string $ra;       // Registro Acadêmico
     private string $curso;
-    private int    $periodo;
-    private string $status;   // 'ativo' | 'inativo'
+    private bool   $apto;  // tinyint vira bool no PHP
 
     // ── Construtor ──
-    // Recebe um array com os dados vindos da API
-    // Ex: ['id' => 1, 'nome' => 'João Silva', 'ra' => '2024001234', ...]
-    // O ?? define um valor padrão caso o campo não venha na resposta
+    // Recebe array com dados vindos da API
+    // Ex: ['ra' => '2024001', 'nome' => 'João', 'curso' => 'TSI', 'apto' => 1]
     public function __construct(array $data) {
-        $this->id      = $data['id']      ?? 0;
-        $this->nome    = $data['nome']    ?? '';
-        $this->email   = $data['email']   ?? '';
-        $this->ra      = $data['ra']      ?? '';
-        $this->curso   = $data['curso']   ?? '';
-        $this->periodo = $data['periodo'] ?? 1;
-        $this->status  = $data['status']  ?? 'ativo';
+        $this->ra    = $data['ra']    ?? '';
+        $this->nome  = $data['nome']  ?? '';
+        $this->curso = $data['curso'] ?? '';
+        // tinyint(1) vem como 0 ou 1 da API — converte para bool
+        $this->apto  = (bool)($data['apto'] ?? false);
     }
 
     // ── Getters ──
-    // Métodos públicos para acessar os atributos privados
-    // A view chama $aluno->getNome() em vez de $aluno['nome']
-    public function getId(): int        { return $this->id; }
-    public function getNome(): string   { return $this->nome; }
-    public function getEmail(): string  { return $this->email; }
-    public function getRa(): string     { return $this->ra; }
-    public function getCurso(): string  { return $this->curso; }
-    public function getPeriodo(): int   { return $this->periodo; }
-    public function getStatus(): string { return $this->status; }
+    public function getRa(): string    { return $this->ra; }
+    public function getNome(): string  { return $this->nome; }
+    public function getCurso(): string { return $this->curso; }
+    public function isApto(): bool     { return $this->apto; }
 
     // ── Método auxiliar ──
-    // Retorna se o aluno está apto a se candidatar
-    public function isAtivo(): bool {
-        return $this->status === 'ativo';
+    // Retorna label amigável do status
+    public function getStatusLabel(): string {
+        return $this->apto ? 'Apto' : 'Não apto';
     }
 }

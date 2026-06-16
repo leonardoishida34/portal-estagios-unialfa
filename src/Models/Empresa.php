@@ -1,53 +1,51 @@
 <?php
-
-// ============================================
-// MODEL: Empresa
-// Representa uma empresa parceira cadastrada
-// no portal. Recebe os dados da API Node.js
-// e encapsula as informações em um objeto PHP.
-// ============================================
+// Representa uma empresa parceira no portal.
+// Campos do banco (portal_estagios.empresas):
+// id          → bigint(20)
+// razao_social→ varchar(255)
+// cnpj        → varchar(18)
+// email       → varchar(255)
+// telefone    → varchar(20)
+// aprovada    → tinyint(1) — 1 = aprovada, 0 = pendente
 
 class Empresa {
 
     // ── Atributos privados (encapsulamento) ──
-    // Ninguém acessa direto — só pelos getters abaixo
     private int    $id;
-    private string $nome;
+    private string $razaoSocial; // campo no banco: razao_social
     private string $cnpj;
     private string $email;
-    private string $cidade;
-    private string $descricao;
-    private string $status;  // 'pendente' | 'aprovada' | 'bloqueada'
+    private string $telefone;
+    private bool   $aprovada;   // tinyint vira bool no PHP
 
     // ── Construtor ──
-    // Recebe um array com os dados vindos da API
-    // Ex: ['id' => 1, 'nome' => 'TechSul', 'status' => 'aprovada', ...]
-    // O ?? define um valor padrão caso o campo não venha na resposta
+    // Recebe array com dados vindos da API
+    // Ex: ['id' => 1, 'razao_social' => 'TechSul', 'aprovada' => 0]
     public function __construct(array $data) {
-        $this->id        = $data['id']        ?? 0;
-        $this->nome      = $data['nome']      ?? '';
-        $this->cnpj      = $data['cnpj']      ?? '';
-        $this->email     = $data['email']     ?? '';
-        $this->cidade    = $data['cidade']    ?? '';
-        $this->descricao = $data['descricao'] ?? '';
-        $this->status    = $data['status']    ?? 'pendente';
+        $this->id          = $data['id']           ?? 0;
+        // banco usa razao_social com underscore
+        $this->razaoSocial = $data['razao_social'] ?? '';
+        $this->cnpj        = $data['cnpj']         ?? '';
+        $this->email       = $data['email']        ?? '';
+        $this->telefone    = $data['telefone']     ?? '';
+        // tinyint(1) vem como 0 ou 1 da API — converte para bool
+        $this->aprovada    = (bool)($data['aprovada'] ?? false);
     }
 
     // ── Getters ──
-    // Métodos públicos para acessar os atributos privados
-    // A view chama $empresa->getNome() em vez de $empresa['nome']
     public function getId(): int           { return $this->id; }
-    public function getNome(): string      { return $this->nome; }
+    public function getRazaoSocial(): string { return $this->razaoSocial; }
     public function getCnpj(): string      { return $this->cnpj; }
     public function getEmail(): string     { return $this->email; }
-    public function getCidade(): string    { return $this->cidade; }
-    public function getDescricao(): string { return $this->descricao; }
-    public function getStatus(): string    { return $this->status; }
+    public function getTelefone(): string  { return $this->telefone; }
+    public function isAprovada(): bool     { return $this->aprovada; }
 
     // ── Métodos auxiliares ──
-    // Facilitam verificações de status na view
-    // Ex: if ($empresa->isAprovada()) { mostrar painel }
-    public function isAprovada(): bool  { return $this->status === 'aprovada'; }
-    public function isPendente(): bool  { return $this->status === 'pendente'; }
-    public function isBloqueada(): bool { return $this->status === 'bloqueada'; }
+    public function getStatusLabel(): string {
+        return $this->aprovada ? 'Aprovada' : 'Pendente';
+    }
+
+    public function getStatusBadge(): string {
+        return $this->aprovada ? 'badge-green' : 'badge-gray';
+    }
 }
