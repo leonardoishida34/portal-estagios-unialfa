@@ -1,0 +1,135 @@
+================================================================
+        PORTAL DE ESTÁGIOS UNIALFA - GUIA DA EQUIPE
+================================================================
+
+Leia com atenção antes de mexer em qualquer coisa no repositório.
+Seguir esse guia evita conflitos e garante a nota de DevOps.
+
+----------------------------------------------------------------
+1. BRANCHES - QUEM USA O QUÊ
+----------------------------------------------------------------
+
+main                    → código oficial/entrega final. NINGUÉM
+                          commita direto aqui. Só via Pull Request.
+
+feature/java-backoffice → responsável pelo módulo Java (Back Office)
+feature/nodejs-api      → responsável pelo módulo Node.js (API)
+feature/php-frontend    → responsável pelo módulo PHP (Front-end)
+feature/devops          → documentação, README, .gitignore, estrutura
+
+Cada um trabalha SOMENTE na sua branch.
+Para enviar o código para a main, abre um Pull Request e
+outro colega revisa antes de aprovar.
+
+----------------------------------------------------------------
+2. PRIMEIROS PASSOS (faça isso uma única vez)
+----------------------------------------------------------------
+
+1. Clone o repositório:
+   git clone https://github.com/leonardoishida34/portal-estagios-unialfa.git
+   cd portal-estagios-unialfa
+
+2. Entre na SUA branch (exemplo para Node.js):
+   git checkout feature/nodejs-api
+
+3. Confirme que está na branch certa antes de qualquer coisa:
+   git branch
+   (a branch atual aparece com * na frente)
+
+----------------------------------------------------------------
+3. ROTINA DIÁRIA DE TRABALHO
+----------------------------------------------------------------
+
+Sempre que for começar a trabalhar, faça isso:
+
+   git checkout feature/SUA-BRANCH
+   git pull origin main          ← pega atualizações dos colegas
+
+Depois de desenvolver:
+
+   git add .
+   git commit -m "feat: descreva o que você fez"
+   git push origin feature/SUA-BRANCH
+
+Depois abra um Pull Request no GitHub:
+   feature/SUA-BRANCH  →  main
+
+----------------------------------------------------------------
+4. PADRÃO DE COMMITS (OBRIGATÓRIO)
+----------------------------------------------------------------
+
+Formato:
+   tipo: mensagem curta e clara em minúsculo
+
+Tipos aceitos:
+
+   feat      → nova funcionalidade
+   fix       → correção de bug
+   chore     → configuração, estrutura de pastas, dependências
+   docs      → documentação, README, comentários
+   refactor  → melhoria de código sem mudar funcionalidade
+   style     → formatação, espaçamento (sem mudar lógica)
+
+Exemplos CORRETOS:
+   feat: adiciona tela de listagem de vagas
+   feat: cria rota POST /candidaturas
+   fix: corrige conexão com banco MySQL
+   chore: adiciona dependência mysql-connector no pom.xml
+   docs: atualiza README com instruções de execução
+   refactor: separa lógica de negócio na camada service
+
+Exemplos ERRADOS (não faça isso):
+   "ajustes"
+   "commit"
+   "arrumei"
+   "testando"
+   "asdflkj"
+
+----------------------------------------------------------------
+5. REGRAS IMPORTANTES - NÃO IGNORE
+----------------------------------------------------------------
+
+  ❌ NUNCA commitar direto na main
+  ❌ NUNCA fazer force push (git push --force)
+  ❌ NUNCA commitar arquivos .env com senhas ou credenciais
+  ❌ NUNCA commitar a pasta node_modules/
+  ❌ NUNCA commitar a pasta target/ (Java)
+
+  ✅ SEMPRE estar na sua branch antes de commitar
+  ✅ SEMPRE fazer git pull antes de começar a trabalhar
+  ✅ SEMPRE usar mensagens de commit descritivas
+  ✅ SEMPRE abrir Pull Request para integrar código na main
+  ✅ SEMPRE pedir para um colega revisar seu Pull Request
+
+----------------------------------------------------------------
+6. SE ALGO DER ERRADO
+----------------------------------------------------------------
+
+Commitou na branch errada?
+   git checkout feature/branch-correta
+   git cherry-pick <hash-do-commit>
+   git checkout branch-errada
+   git revert <hash-do-commit>
+
+Deu conflito no pull?
+   Não entre em pânico. Avise o colega responsável pelo
+   arquivo conflitante e resolvam juntos.
+
+Ficou em dúvida?
+   Pergunte antes de fazer. É melhor perguntar do que
+   estragar o repositório.
+
+----------------------------------------------------------------
+7. CHECKLIST ANTES DE ABRIR UM PULL REQUEST
+----------------------------------------------------------------
+
+   [ ] Estou na minha branch correta?
+   [ ] Fiz git pull origin main antes de commitar?
+   [ ] Meus commits seguem o padrão definido acima?
+   [ ] Não subi arquivos .env, node_modules ou target/?
+   [ ] O código está funcionando localmente?
+   [ ] Descrevi o que foi feito na descrição do Pull Request?
+
+================================================================
+Qualquer dúvida, fala com o responsável pelo DevOps.
+================================================================

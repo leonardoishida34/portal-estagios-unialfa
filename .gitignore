@@ -1,0 +1,31 @@
+# Java
+*.class
+*.jar
+backoffice-java/target/
+target/
+
+# Node.js
+nodejs-api/node_modules/
+nodejs-api/dist/
+nodejs-api/.env
+nodejs-api/api.log
+
+# PHP
+vendor/
+portal-estagios-php/vendor/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# Debug / diagnóstico
+diagnostico.sh
+verificar_banco.py
+portal-estagios-php/verificar_banco.php
+nodejs-api/diagnostico.ts
+nodejs-api.7z
