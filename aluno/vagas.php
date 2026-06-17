@@ -15,9 +15,8 @@ include BASE_PATH . '/includes/header.php';
 
 // Dados mockados — depois virão da API
   $vagas = [
-  1 => ['titulo'=>'Desenvolvedor(a) Web', 'empresa'=>'TechSul Sistemas', 'area'=>'Tecnologia', 'tipo'=>'Presencial', 'carga'=>'30h/sem', 'descricao'=>'Vaga voltada para alunos de TI. Conhecimentos em HTML, CSS e lógica de programação são diferenciais.', 'requisitos'=>'Cursando Tecnologia em Sistemas para Internet ou similar. Disponibilidade para trabalho presencial.'],
-  2 => ['titulo'=>'Assistente Administrativo', 'empresa'=>'Grupo RB Comércio', 'area'=>'Administração', 'tipo'=>'Híbrido', 'carga'=>'20h/sem', 'descricao'=>'Apoio nas rotinas administrativas.', 'requisitos'=>'Cursando Administração.'],
-];  
+['id' => 1, 'titulo' => 'Estágio PHP', 'empresa' => 'Alfa', 'area' => 'TI', 'tipo' => 'Remoto', 'carga' => '30h', 'descricao' => 'Teste']
+  ];
 ?>
 
 <style>
@@ -263,11 +262,11 @@ include BASE_PATH . '/includes/header.php';
           </div>
 
           <div class="vaga-acoes">
-            <a href="candidatar.php?vaga_id=<?= $v['id'] ?>" class="btn btn-primary">Candidatar-se</a>
+            <a href="<?= BASE_URL ?>/portal-estagios-unialfa/aluno/candidatar.php?vaga_id=<?= $v['id'] ?>" class="btn btn-primary">Candidatar-se</a>
             <button class="btn btn-outline" style="padding:9px 20px;font-size:13px" onclick="alert('Ver detalhes — em breve!')">Ver detalhes</button>
           </div>
         </div>
-      <?php endforeach; ?>
+      <?php endforeach; ?>''
     </div>
   </main>
 
