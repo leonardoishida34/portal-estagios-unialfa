@@ -27,11 +27,11 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   next()
 })
 
-app.use('/vagas', vagaRoutes)
-app.use('/candidaturas', candidaturaRoutes)
-app.use('/alunos', alunoRoutes)
-app.use('/empresas', empresaRoutes)
-app.use('/usuarios', usuarioRoutes)
+app.use('/api/vagas', vagaRoutes)
+app.use('/api/candidaturas', candidaturaRoutes)
+app.use('/api/alunos', alunoRoutes)
+app.use('/api/empresas', empresaRoutes)
+app.use('/api/usuarios', usuarioRoutes)
 
 app.get('/', (_req: Request, res: Response) => {
   res.json({ message: 'API Portal de Estagios UniALFA', status: 'online' })
