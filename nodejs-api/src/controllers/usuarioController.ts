@@ -1,5 +1,7 @@
-const { PrismaClient } = require('@prisma/client')
-const { z } = require('zod')
+import { Request, Response, NextFunction } from 'express'
+import { PrismaClient } from '@prisma/client'
+import { z } from 'zod'
+
 const prisma = new PrismaClient()
 
 const usuarioSchema = z.object({
@@ -14,7 +16,7 @@ const loginSchema = z.object({
   senha: z.string()
 })
 
-async function listar(req, res, next) {
+export async function listar(_req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const usuarios = await prisma.usuario.findMany({
       select: { id: true, nome: true, login: true, perfil: true },
@@ -24,19 +26,19 @@ async function listar(req, res, next) {
   } catch (err) { next(err) }
 }
 
-async function login(req, res, next) {
+export async function login(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const { login, senha } = loginSchema.parse(req.body)
     const usuario = await prisma.usuario.findFirst({
       where: { login, senha },
       select: { id: true, nome: true, login: true, perfil: true }
     })
-    if (!usuario) return res.status(401).json({ error: 'Login ou senha invalidos' })
+    if (!usuario) { res.status(401).json({ error: 'Login ou senha invalidos' }); return }
     res.json({ mensagem: 'Login realizado com sucesso', usuario })
   } catch (err) { next(err) }
 }
 
-async function criar(req, res, next) {
+export async function criar(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const dados = usuarioSchema.parse(req.body)
     const usuario = await prisma.usuario.create({
@@ -47,11 +49,9 @@ async function criar(req, res, next) {
   } catch (err) { next(err) }
 }
 
-async function remover(req, res, next) {
+export async function remover(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     await prisma.usuario.delete({ where: { id: BigInt(req.params.id) } })
     res.status(204).send()
   } catch (err) { next(err) }
 }
-
-module.exports = { listar, login, criar, remover }

@@ -1,5 +1,7 @@
-const { PrismaClient } = require('@prisma/client')
-const { z } = require('zod')
+import { Request, Response, NextFunction } from 'express'
+import { PrismaClient } from '@prisma/client'
+import { z } from 'zod'
+
 const prisma = new PrismaClient()
 
 const empresaSchema = z.object({
@@ -10,7 +12,7 @@ const empresaSchema = z.object({
   aprovada:    z.boolean().default(false)
 })
 
-async function listar(req, res, next) {
+export async function listar(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const { aprovada } = req.query
     const empresas = await prisma.empresa.findMany({
@@ -22,7 +24,7 @@ async function listar(req, res, next) {
   } catch (err) { next(err) }
 }
 
-async function buscarPorId(req, res, next) {
+export async function buscarPorId(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const empresa = await prisma.empresa.findUniqueOrThrow({
       where: { id: BigInt(req.params.id) },
@@ -32,7 +34,7 @@ async function buscarPorId(req, res, next) {
   } catch (err) { next(err) }
 }
 
-async function criar(req, res, next) {
+export async function criar(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const dados = empresaSchema.parse(req.body)
     const empresa = await prisma.empresa.create({ data: dados })
@@ -40,7 +42,7 @@ async function criar(req, res, next) {
   } catch (err) { next(err) }
 }
 
-async function atualizar(req, res, next) {
+export async function atualizar(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const dados = empresaSchema.partial().parse(req.body)
     const empresa = await prisma.empresa.update({ where: { id: BigInt(req.params.id) }, data: dados })
@@ -48,11 +50,9 @@ async function atualizar(req, res, next) {
   } catch (err) { next(err) }
 }
 
-async function remover(req, res, next) {
+export async function remover(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     await prisma.empresa.delete({ where: { id: BigInt(req.params.id) } })
     res.status(204).send()
   } catch (err) { next(err) }
 }
-
-module.exports = { listar, buscarPorId, criar, atualizar, remover }
