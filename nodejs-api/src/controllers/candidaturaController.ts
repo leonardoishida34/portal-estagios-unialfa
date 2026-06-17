@@ -1,5 +1,7 @@
-const { PrismaClient } = require('@prisma/client')
-const { z } = require('zod')
+import { Request, Response, NextFunction } from 'express'
+import { PrismaClient } from '@prisma/client'
+import { z } from 'zod'
+
 const prisma = new PrismaClient()
 
 const candidaturaSchema = z.object({
@@ -11,7 +13,7 @@ const statusSchema = z.object({
   status: z.enum(['Pendente', 'Aprovada', 'Reprovada'])
 })
 
-async function listar(req, res, next) {
+export async function listar(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const candidaturas = await prisma.candidatura.findMany({
       include: {
@@ -24,7 +26,7 @@ async function listar(req, res, next) {
   } catch (err) { next(err) }
 }
 
-async function buscarPorId(req, res, next) {
+export async function buscarPorId(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const candidatura = await prisma.candidatura.findUniqueOrThrow({
       where: { id: BigInt(req.params.id) },
@@ -34,17 +36,17 @@ async function buscarPorId(req, res, next) {
   } catch (err) { next(err) }
 }
 
-async function criar(req, res, next) {
+export async function criar(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const dados = candidaturaSchema.parse(req.body)
 
     const aluno = await prisma.aluno.findUnique({ where: { ra: dados.alunoRa } })
-    if (!aluno) return res.status(404).json({ error: 'Aluno nao encontrado' })
-    if (!aluno.apto) return res.status(400).json({ error: 'Aluno nao esta apto para candidatura' })
+    if (!aluno) { res.status(404).json({ error: 'Aluno nao encontrado' }); return }
+    if (!aluno.apto) { res.status(400).json({ error: 'Aluno nao esta apto para candidatura' }); return }
 
     const vaga = await prisma.vaga.findUnique({ where: { id: BigInt(dados.vagaId) } })
-    if (!vaga) return res.status(404).json({ error: 'Vaga nao encontrada' })
-    if (!vaga.ativa) return res.status(400).json({ error: 'Vaga nao esta ativa' })
+    if (!vaga) { res.status(404).json({ error: 'Vaga nao encontrada' }); return }
+    if (!vaga.ativa) { res.status(400).json({ error: 'Vaga nao esta ativa' }); return }
 
     const candidatura = await prisma.candidatura.create({
       data: { alunoRa: dados.alunoRa, vagaId: BigInt(dados.vagaId) },
@@ -53,12 +55,11 @@ async function criar(req, res, next) {
         vaga:  { select: { titulo: true, empresa: { select: { razaoSocial: true } } } }
       }
     })
-
     res.status(201).json({ mensagem: 'Candidatura enviada com sucesso!', candidatura })
   } catch (err) { next(err) }
 }
 
-async function atualizarStatus(req, res, next) {
+export async function atualizarStatus(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const { status } = statusSchema.parse(req.body)
     const candidatura = await prisma.candidatura.update({
@@ -69,11 +70,9 @@ async function atualizarStatus(req, res, next) {
   } catch (err) { next(err) }
 }
 
-async function remover(req, res, next) {
+export async function remover(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     await prisma.candidatura.delete({ where: { id: BigInt(req.params.id) } })
     res.status(204).send()
   } catch (err) { next(err) }
 }
-
-module.exports = { listar, buscarPorId, criar, atualizarStatus, remover }

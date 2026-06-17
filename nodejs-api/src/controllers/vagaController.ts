@@ -1,5 +1,7 @@
-const { PrismaClient } = require('@prisma/client')
-const { z } = require('zod')
+import { Request, Response, NextFunction } from 'express'
+import { PrismaClient } from '@prisma/client'
+import { z } from 'zod'
+
 const prisma = new PrismaClient()
 
 const vagaSchema = z.object({
@@ -10,7 +12,7 @@ const vagaSchema = z.object({
   ativa:     z.boolean().default(true)
 })
 
-async function listar(req, res, next) {
+export async function listar(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const { ativa } = req.query
     const vagas = await prisma.vaga.findMany({
@@ -25,7 +27,7 @@ async function listar(req, res, next) {
   } catch (err) { next(err) }
 }
 
-async function buscarPorId(req, res, next) {
+export async function buscarPorId(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const vaga = await prisma.vaga.findUniqueOrThrow({
       where: { id: BigInt(req.params.id) },
@@ -40,7 +42,7 @@ async function buscarPorId(req, res, next) {
   } catch (err) { next(err) }
 }
 
-async function criar(req, res, next) {
+export async function criar(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const dados = vagaSchema.parse(req.body)
     const vaga = await prisma.vaga.create({
@@ -51,20 +53,20 @@ async function criar(req, res, next) {
   } catch (err) { next(err) }
 }
 
-async function atualizar(req, res, next) {
+export async function atualizar(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const dados = vagaSchema.partial().parse(req.body)
-    if (dados.empresaId) dados.empresaId = BigInt(dados.empresaId)
-    const vaga = await prisma.vaga.update({ where: { id: BigInt(req.params.id) }, data: dados })
+    const vaga = await prisma.vaga.update({
+      where: { id: BigInt(req.params.id) },
+      data: { ...dados, ...(dados.empresaId && { empresaId: BigInt(dados.empresaId) }) }
+    })
     res.json(vaga)
   } catch (err) { next(err) }
 }
 
-async function remover(req, res, next) {
+export async function remover(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     await prisma.vaga.delete({ where: { id: BigInt(req.params.id) } })
     res.status(204).send()
   } catch (err) { next(err) }
 }
-
-module.exports = { listar, buscarPorId, criar, atualizar, remover }

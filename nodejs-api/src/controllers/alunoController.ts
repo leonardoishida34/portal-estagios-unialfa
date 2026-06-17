@@ -1,15 +1,17 @@
-const { PrismaClient } = require('@prisma/client')
-const { z } = require('zod')
+import { Request, Response, NextFunction } from 'express'
+import { PrismaClient } from '@prisma/client'
+import { z } from 'zod'
+
 const prisma = new PrismaClient()
 
 const alunoSchema = z.object({
-  ra:   z.string().length(8, 'RA deve ter exatamente 8 caracteres'),
-  nome: z.string().min(3, 'Nome obrigatorio'),
+  ra:    z.string().length(8, 'RA deve ter exatamente 8 caracteres'),
+  nome:  z.string().min(3, 'Nome obrigatorio'),
   curso: z.string().min(3, 'Curso obrigatorio'),
-  apto: z.boolean().default(true)
+  apto:  z.boolean().default(true)
 })
 
-async function listar(req, res, next) {
+export async function listar(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const alunos = await prisma.aluno.findMany({
       include: { _count: { select: { candidaturas: true } } },
@@ -19,7 +21,7 @@ async function listar(req, res, next) {
   } catch (err) { next(err) }
 }
 
-async function buscarPorRa(req, res, next) {
+export async function buscarPorRa(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const aluno = await prisma.aluno.findUniqueOrThrow({
       where: { ra: req.params.ra },
@@ -33,7 +35,7 @@ async function buscarPorRa(req, res, next) {
   } catch (err) { next(err) }
 }
 
-async function criar(req, res, next) {
+export async function criar(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const dados = alunoSchema.parse(req.body)
     const aluno = await prisma.aluno.create({ data: dados })
@@ -41,7 +43,7 @@ async function criar(req, res, next) {
   } catch (err) { next(err) }
 }
 
-async function atualizar(req, res, next) {
+export async function atualizar(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const dados = alunoSchema.partial().parse(req.body)
     const aluno = await prisma.aluno.update({ where: { ra: req.params.ra }, data: dados })
@@ -49,12 +51,10 @@ async function atualizar(req, res, next) {
   } catch (err) { next(err) }
 }
 
-async function remover(req, res, next) {
+export async function remover(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     await prisma.candidatura.deleteMany({ where: { alunoRa: req.params.ra } })
     await prisma.aluno.delete({ where: { ra: req.params.ra } })
     res.status(204).send()
   } catch (err) { next(err) }
 }
-
-module.exports = { listar, buscarPorRa, criar, atualizar, remover }
