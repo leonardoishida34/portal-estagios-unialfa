@@ -190,18 +190,6 @@ java -jar target/estagios-backoffice-1.0-SNAPSHOT.jar
 
 ---
 
-## Equipe e Contribuições
-
-| Nome | RA | Responsabilidade |
-|------|----|-----------------|
-| Gustavo Ruiz | 250417 | Java – Back Office Institucional |
-| Henrique Esteves | 240016 | Node.js – API RESTful |
-| Murilo Marchi | 14510 | PHP – Portal Web |
-| Nikolas Lodi | 250450 | UX, Figma e protótipos |
-| Leonardo Ishida | 250282 | DevOps, Git e Documentação |
-
----
-
 ## Licença
 
 Projeto acadêmico desenvolvido para fins avaliativos – Hackathon UniALFA 2026.
